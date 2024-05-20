@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fyy.mapper.StudentMapper">
+    <select id="getStudentScores">
+        select * from cnsoftbei.student join cnsoftbei.score s on s.id = student.score_id  where student.id= #{ID};
+    </select>
+</mapper>
