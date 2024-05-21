@@ -14,6 +14,7 @@ public interface StudentService extends IService<Student> {
     Student getStudent(Student student);
     //添加学生
     boolean addStudent(Student student);
-    //获取学生成绩
-    StudentVo getStudentScores(String ID);
+
+    //添加老师
+    boolean addTeacher(String ID,String classCode);
 }

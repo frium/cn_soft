@@ -16,4 +16,13 @@ public class AIController {
     public R<String> getAIAnswer(@RequestBody String question){
         return R.success(AI.getAIAnswer(question));
     }
+    @PostMapping("/translate")
+    public R<String> translate(@RequestBody String content){
+        return null;
+    }
+    @PostMapping("/writing")
+    public R<String> writing (){
+        return null;
+    }
+
 }

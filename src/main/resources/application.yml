@@ -6,6 +6,19 @@ spring:
     username: root
     password: 123456
     driver-class-name: com.mysql.cj.jdbc.Driver
+  data:
+    redis:
+      host: frium.top
+      port: 6379
+      timeout: 3
+      password: 123456
+      database: 0
+      lettuce:
+        pool:
+          max-active: 10
+          max-idle: 8
+          min-idle: 0
+          max-wait: 5s
 mybatis-plus:
   configuration:
     #在映射实体或者属性时，将数据库中表名和字段名中的下划线去掉，按照驼峰命名法映射fg

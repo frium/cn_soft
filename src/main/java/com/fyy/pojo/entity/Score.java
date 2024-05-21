@@ -12,6 +12,7 @@ import java.io.Serializable;
 @Data
 public class Score implements Serializable {
     private Long ID;
+    private Long studentId;
     private Integer Chinese;
     private Integer Math;
     private Integer English;
@@ -21,6 +22,7 @@ public class Score implements Serializable {
     private Integer Politics;
     private Integer Geography;
     private Integer Biology;
-    private String  createTime;
-    private String  updateTime;
+    private String createTime;
+    private String updateTime;
+    private String title;
 }

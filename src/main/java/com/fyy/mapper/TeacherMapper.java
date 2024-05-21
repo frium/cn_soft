@@ -1,8 +1,12 @@
 package com.fyy.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.fyy.pojo.entity.Student;
 import com.fyy.pojo.entity.Teacher;
+import com.fyy.pojo.vo.StudentVo;
 import org.apache.ibatis.annotations.Mapper;
+
+import java.util.List;
 
 /**
  *
@@ -11,4 +15,5 @@ import org.apache.ibatis.annotations.Mapper;
  */
 @Mapper
 public interface TeacherMapper extends BaseMapper<Teacher> {
+
 }

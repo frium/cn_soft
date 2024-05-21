@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fyy.mapper.ScoreMapper">
+    <select id="getAllStudentsScores">
+        select cnsoftbei.student.name
+        from cnsoftbei.student
+                 join cnsoftbei.score s ON s.student_id = cnsoftbei.student.id
+        where cnsoftbei.student.teacher_id = #{ID} and s.title like CONCAT('%',#{title},'%')
+        order by s.title
+        limit #{offset}, #{page};
+    </select>
+    <select id="getStudentScores">
+        select *
+        from cnsoftbei.score
+        where cnsoftbei.student.id = #{ID};
+    </select>
+</mapper>

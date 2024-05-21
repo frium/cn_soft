@@ -3,6 +3,7 @@ package com.fyy.server.impl;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.fyy.mapper.StudentMapper;
 import com.fyy.pojo.entity.Student;
+import com.fyy.pojo.entity.Teacher;
 import com.fyy.pojo.vo.StudentVo;
 import com.fyy.server.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,15 +28,16 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
     public boolean addStudent(Student student) {
         //查询数据库中是否有相同的身份证或者电话,有的话直接pass
         Student s = lambdaQuery().eq(Student::getPhone, student.getPhone()).or().eq(Student::getPersonalId, student.getPersonalId()).one();
-        if (s != null) {
-            return false;
-        }
+        if (s != null) return false;
         save(student);
         return true;
     }
 
+
+
     @Override
-    public StudentVo getStudentScores(String ID) {
-        return studentMapper.getStudentScores(ID);
+    public boolean addTeacher(String ID, String classCode) {
+       return studentMapper.addTeacher(ID,classCode);//怎么判断成功和失败呢?
     }
+
 }

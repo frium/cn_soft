@@ -11,7 +11,6 @@ import java.io.Serializable;
 @Data
 public class Student implements Serializable {
     private Long teacherId;
-    private Long scoreId;
     private String sex;
     private String name;
     private Long ID;
