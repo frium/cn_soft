@@ -1,8 +1,9 @@
-package com.fyy.server;
+package com.fyy.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.fyy.pojo.dto.LoginDto;
+import com.fyy.pojo.dto.UserDto;
 import com.fyy.pojo.entity.Student;
-import com.fyy.pojo.vo.StudentVo;
 
 /**
  *
@@ -11,10 +12,10 @@ import com.fyy.pojo.vo.StudentVo;
  */
 public interface StudentService extends IService<Student> {
     //获取学生对象
-    Student getStudent(Student student);
+    Student getStudent(LoginDto student);
     //添加学生
-    boolean addStudent(Student student);
+    void addStudent(UserDto student);
 
     //添加老师
-    boolean addTeacher(String ID,String classCode);
+    void addTeacher(String ID,String classCode);
 }

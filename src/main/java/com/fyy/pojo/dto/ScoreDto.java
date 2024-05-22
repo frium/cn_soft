@@ -1,17 +1,14 @@
-package com.fyy.pojo.entity;
+package com.fyy.pojo.dto;
 
 import lombok.Data;
 
-import java.io.Serializable;
-
 /**
  *
- * @date 2024-05-16 17:41:17
+ * @date 2024-05-22 20:32:06
  * @description
  */
 @Data
-public class Score implements Serializable {
-    private Long id;
+public class ScoreDto {
     private Long studentId;
     private Integer chinese;
     private Integer math;
@@ -22,7 +19,5 @@ public class Score implements Serializable {
     private Integer politics;
     private Integer geography;
     private Integer biology;
-    private String createTime;
-    private String updateTime;
     private String title;
 }

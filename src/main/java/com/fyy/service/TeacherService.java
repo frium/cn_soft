@@ -1,12 +1,9 @@
-package com.fyy.server;
+package com.fyy.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.fyy.pojo.entity.Score;
-import com.fyy.pojo.entity.Student;
+import com.fyy.pojo.dto.LoginDto;
+import com.fyy.pojo.dto.UserDto;
 import com.fyy.pojo.entity.Teacher;
-import com.fyy.pojo.vo.StudentVo;
-
-import java.util.List;
 
 /**
  *
@@ -15,8 +12,8 @@ import java.util.List;
  */
 public interface TeacherService extends IService<Teacher> {
     //老师账号登录
-    Teacher getTeacher(Teacher teacher);
+    Teacher getTeacher(LoginDto teacher);
     //老师注册
-    boolean addTeacher(Teacher teacher);
+    void addTeacher(UserDto teacher);
 
 }

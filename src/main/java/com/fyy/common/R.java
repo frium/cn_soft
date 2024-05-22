@@ -14,31 +14,38 @@ import java.util.Map;
 @Data
 public class R<T> implements Serializable {
 
-    private Integer code; //编码：1成功，0和其它数字为失败
+    private Integer code;
 
     private String msg; //错误信息
 
     private T data; //数据
 
-    private Map map = new HashMap(); //动态数据
-
     public static <T> R<T> success(T object) {
-        R<T> r = new R<T>();
-        r.data = object;
-        r.code = 1;
-        return r;
+        R<T> result = new R<>();
+        result.code = StatusCodeEnum.SUCCESS.getCode();
+        result.msg = StatusCodeEnum.SUCCESS.getDesc();
+        result.data=object;
+        return result;
+    }
+
+    public static <T> R<T> success() {
+        R<T> result = new R<>();
+        result.code = StatusCodeEnum.SUCCESS.getCode();
+        result.msg = StatusCodeEnum.SUCCESS.getDesc();
+        return result;
     }
 
     public static <T> R<T> error(String msg) {
-        R r = new R();
-        r.msg = msg;
-        r.code = 0;
-        return r;
+        R<T> result = new R<>();
+        result.code = StatusCodeEnum.FAIL.getCode();
+        result.msg = msg;
+        return result;
     }
-
-    public R<T> add(String key, Object value) {
-        this.map.put(key, value);
-        return this;
+    //?
+    public static <T> R<T> error(StatusCodeEnum statusCodeEnum) {
+        R<T> result = new R<>();
+        result.code = StatusCodeEnum.FAIL.getCode();
+        result.msg = statusCodeEnum.getDesc();
+        return result;
     }
-
 }

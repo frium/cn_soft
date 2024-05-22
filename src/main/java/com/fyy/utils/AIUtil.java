@@ -14,7 +14,8 @@ import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-public class AI extends WebSocketListener {
+@SuppressWarnings("all")
+public class AIUtil extends WebSocketListener {
     // 地址与鉴权信息  https://spark-api.xf-yun.com/v1.1/chat   1.5地址  domain参数为general
     // 地址与鉴权信息  https://spark-api.xf-yun.com/v2.1/chat   2.0地址  domain参数为generalv2
     public static final String hostUrl = "https://spark-api.xf-yun.com/v3.5/chat";
@@ -37,7 +38,7 @@ public class AI extends WebSocketListener {
 
     private static Boolean totalFlag=true; // 控制提示用户是否输入
     // 构造函数
-    public AI(String userId, Boolean wsCloseFlag) {
+    public AIUtil(String userId, Boolean wsCloseFlag) {
         this.userId = userId;
         this.wsCloseFlag = wsCloseFlag;
     }
@@ -71,7 +72,7 @@ public class AI extends WebSocketListener {
             Request request = new Request.Builder().url(url).build();
             for (int i = 0; i < 1; i++) {
                 totalAnswer="";
-                WebSocket webSocket = client.newWebSocket(request, new AI(i + "",
+                WebSocket webSocket = client.newWebSocket(request, new AIUtil(i + "",
                         false));
             }
         }else{

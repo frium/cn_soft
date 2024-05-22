@@ -1,8 +1,11 @@
 package com.fyy.controller;
 
 import com.fyy.common.R;
-import com.fyy.utils.AI;
+import com.fyy.pojo.dto.TranslateDto;
+import com.fyy.utils.AIUtil;
+import com.fyy.utils.ITSUtil;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  *
@@ -14,10 +17,16 @@ import org.springframework.web.bind.annotation.*;
 public class AIController {
     @PostMapping("/getAIAnswer")
     public R<String> getAIAnswer(@RequestBody String question){
-        return R.success(AI.getAIAnswer(question));
+        return R.success(AIUtil.getAIAnswer(question));
     }
+    //输入翻译
     @PostMapping("/translate")
-    public R<String> translate(@RequestBody String content){
+    public R<String> translate(@RequestBody TranslateDto translateDto) throws Exception {
+        return R.success(ITSUtil.AITranslate(translateDto.getFrom(),translateDto.getTo(),translateDto.getText()));
+    }
+    //文档翻译
+    @PostMapping("/translateByFile")
+    public R<String> translateByFile(@RequestParam("file") MultipartFile file){
         return null;
     }
     @PostMapping("/writing")
