@@ -1,13 +1,10 @@
 package com.fyy.controller;
 
 import com.fyy.common.R;
-import com.fyy.pojo.dto.LoginDto;
-import com.fyy.pojo.dto.PageDto;
-import com.fyy.pojo.dto.ScoreDto;
-import com.fyy.pojo.dto.UserDto;
-import com.fyy.pojo.entity.Score;
+import com.fyy.context.BaseContext;
+import com.fyy.pojo.dto.*;
 import com.fyy.pojo.entity.Teacher;
-import com.fyy.pojo.vo.StudentVo;
+import com.fyy.pojo.vo.StudentScoreVo;
 import com.fyy.service.ScoreService;
 import com.fyy.service.TeacherService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,16 +35,34 @@ public class TeacherController {
         teacherService.addTeacher(teacher);
         return R.success();
     }
-
+    //获取指定的考试中所有学生的成绩
     @GetMapping("/getAllStudentsScores")
-    public R<List<StudentVo>> getAllStudentsScores(@RequestBody PageDto pageDto) {
+    public R<List<StudentScoreVo>> getAllStudentsScores(@RequestBody PageDto pageDto) {
         return R.success(scoreService.getAllStudentsScores(pageDto));
+    }
+
+    //获取所有考试title
+    @GetMapping("/getAllScores")
+    public R<List<String>> getAllScores(@RequestBody PageDto pageDto){
+        return R.success(scoreService.getAllScores(pageDto));
     }
 
     //添加学生成绩
     @PostMapping("/addStudentScores")
     public R<String> addStudentScores(@RequestBody ScoreDto score) {
         scoreService.addStudentScore(score);
+        return R.success();
+    }
+    //找回密码
+    @PostMapping("/forgetPassword")
+    public R<String> forgetPassword(@RequestBody ForgetPasswordDto forgetPasswordDto) {
+        return R.success(teacherService.forgetPassword(forgetPasswordDto));
+    }
+
+    //退出登录
+    @GetMapping("/logout")
+    public R<?> logout() {
+        BaseContext.removeCurrentId();
         return R.success();
     }
 

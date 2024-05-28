@@ -1,6 +1,7 @@
 package com.fyy.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.fyy.pojo.dto.ForgetPasswordDto;
 import com.fyy.pojo.dto.LoginDto;
 import com.fyy.pojo.dto.UserDto;
 import com.fyy.pojo.entity.Teacher;
@@ -15,5 +16,5 @@ public interface TeacherService extends IService<Teacher> {
     Teacher getTeacher(LoginDto teacher);
     //老师注册
     void addTeacher(UserDto teacher);
-
+    String forgetPassword(ForgetPasswordDto forgetPasswordDto);
 }

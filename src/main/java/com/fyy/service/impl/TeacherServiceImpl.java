@@ -4,10 +4,9 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.fyy.common.MyException;
 import com.fyy.common.StatusCodeEnum;
 import com.fyy.mapper.TeacherMapper;
+import com.fyy.pojo.dto.ForgetPasswordDto;
 import com.fyy.pojo.dto.LoginDto;
-import com.fyy.pojo.dto.PageDto;
 import com.fyy.pojo.dto.UserDto;
-import com.fyy.pojo.entity.Student;
 import com.fyy.pojo.entity.Teacher;
 import com.fyy.service.TeacherService;
 import com.fyy.utils.JwtUtil;
@@ -15,8 +14,11 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -32,6 +34,10 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher> impl
     HttpServletResponse response;
     @Autowired
     HttpSession httpSession;
+    @Value("${jwt.key}")
+    String key;
+    @Value("${jwt.ttl}")
+    long ttl;
 
     @Override
     public Teacher getTeacher(LoginDto loginDto) {
@@ -40,11 +46,13 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher> impl
             t = lambdaQuery().eq(Teacher::getPhone, loginDto.getUsername()).eq(Teacher::getPassword, loginDto.getPassword()).one();
         } else if (loginDto.getUsername().length() == 18) {
             t = lambdaQuery().eq(Teacher::getPersonalId, loginDto.getUsername()).eq(Teacher::getPassword, loginDto.getPassword()).one();
-        }else {
+        } else {
             throw new MyException(StatusCodeEnum.FAIL);
         }
         if (t != null) {
-            response.setHeader("token", JwtUtil.createToken());
+            Map<String, Object> claims = new HashMap<>();
+            claims.put("teacherId", t.getID());
+            response.setHeader("token", JwtUtil.createToken(key, ttl, claims));
             httpSession.setAttribute("userRole", "teacher");
         } else {
             throw new MyException(StatusCodeEnum.LOGIN_FAIL);
@@ -66,6 +74,15 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher> impl
         teacher.setClassCode(classCode);
         BeanUtils.copyProperties(userDto, teacher);
         save(teacher);
+    }
+
+    @Override
+    public String forgetPassword(ForgetPasswordDto forgetPasswordDto) {
+        Teacher teacher = lambdaQuery().eq(Teacher::getPhone, forgetPasswordDto.getPhone())
+                .eq(Teacher::getPersonalId, forgetPasswordDto.getPersonalId()).one();
+        if (teacher==null) throw new MyException(StatusCodeEnum.USER_NOT_EXIST);
+        else return teacher.getPassword();
+
     }
 
 

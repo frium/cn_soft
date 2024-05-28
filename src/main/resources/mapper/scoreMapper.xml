@@ -4,16 +4,23 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.fyy.mapper.ScoreMapper">
     <select id="getAllStudentsScores">
-        select cnsoftbei.student.name
-        from cnsoftbei.student
-                 join cnsoftbei.score s ON s.student_id = cnsoftbei.student.id
-        where cnsoftbei.student.teacher_id = #{ID} and s.title like CONCAT('%',#{title},'%')
-        order by s.title
-        limit #{offset}, #{page};
+        select student.name, score.*
+        from student
+                 join score on score.student_id = student.student_id
+        where student.teacher_id = #{ID}
+          and score.title like CONCAT('%', #{title}, '%')
+        order by score.title
+        limit #{offset}, #{pageSize};
     </select>
     <select id="getStudentScores">
         select *
-        from cnsoftbei.score
+        from score
         where student_id = #{ID};
+    </select>
+    <select id="getAllScores">
+        select distinct score.title
+        from score
+        order by score.title
+        limit #{offset}, #{pageSize};
     </select>
 </mapper>

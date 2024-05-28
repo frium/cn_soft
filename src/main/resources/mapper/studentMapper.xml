@@ -5,6 +5,9 @@
 <mapper namespace="com.fyy.mapper.StudentMapper">
 
     <update id="addTeacher">
-        update cnsoftbei.student set teacher_id=(select id from cnsoftbei.teacher where cnsoftbei.teacher.class_code=#{classCode}) where id=#{ID};
+        update student set teacher_id=(select id from teacher where teacher.class_code=#{classCode}) where id=#{ID};
     </update>
+    <select id="getPersonalInfo">
+select * from student ji;
+    </select>
 </mapper>

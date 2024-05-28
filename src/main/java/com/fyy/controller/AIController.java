@@ -4,6 +4,8 @@ import com.fyy.common.R;
 import com.fyy.pojo.dto.TranslateDto;
 import com.fyy.utils.AIUtil;
 import com.fyy.utils.ITSUtil;
+import com.fyy.utils.TextCorrectionUtil;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -15,9 +17,20 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequestMapping("/AI")
 public class AIController {
+    @Value("${ai.id}")
+    private String appid;
+    @Value("${ai.secret}")
+    private String apiSecret;
+    @Value("${ai.key}")
+    private String apiKey;
+
+
     @PostMapping("/getAIAnswer")
     public R<String> getAIAnswer(@RequestBody String question){
-        return R.success(AIUtil.getAIAnswer(question));
+        AIUtil aiUtil=new AIUtil(appid,apiKey,apiSecret);
+        return R.success(aiUtil.getAIAnswer(question));
+
+
     }
     //输入翻译
     @PostMapping("/translate")
@@ -32,6 +45,12 @@ public class AIController {
     @PostMapping("/writing")
     public R<String> writing (){
         return null;
+    }
+    //文本纠错
+    @PostMapping("/textCorrection")
+    public R<String> textCorrection(String text) throws Exception {
+        TextCorrectionUtil textCorrectionUtil=new TextCorrectionUtil();
+        return R.success(textCorrectionUtil.getTextCorrection(text));
     }
 
 }

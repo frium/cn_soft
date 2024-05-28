@@ -4,12 +4,11 @@ import lombok.Data;
 
 /**
  *
- * @date 2024-05-22 16:31:08
+ * @date 2024-05-28 21:45:59
  * @description
  */
 @Data
-public class UserDto {
-    private String password;
+public class ForgetPasswordDto {
     private Long phone;
     private String personalId;
 }

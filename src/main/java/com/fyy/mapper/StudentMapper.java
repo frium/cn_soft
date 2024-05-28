@@ -2,6 +2,7 @@ package com.fyy.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.fyy.pojo.entity.Student;
+import com.fyy.pojo.vo.PersonalInfoVo;
 import com.fyy.pojo.vo.StudentVo;
 import org.apache.ibatis.annotations.Mapper;
 
@@ -13,5 +14,6 @@ import org.apache.ibatis.annotations.Mapper;
 @Mapper
 public interface StudentMapper extends BaseMapper<Student> {
 
-    boolean addTeacher(String ID,String classCode);
+    void addTeacher(Long ID,String classCode);
+
 }

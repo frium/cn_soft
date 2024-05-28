@@ -1,11 +1,17 @@
 package com.fyy.interceptor;
 
+import com.fyy.common.MyException;
+import com.fyy.common.StatusCodeEnum;
+import com.fyy.context.BaseContext;
 import com.fyy.utils.JwtUtil;
+import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
-import org.springframework.web.servlet.ModelAndView;
+
+import java.util.Objects;
 
 /**
  *
@@ -15,21 +21,31 @@ import org.springframework.web.servlet.ModelAndView;
 @Component
 @SuppressWarnings("all")
 public class TokenInterceptor implements HandlerInterceptor {
-    //在请求处理方法前被调用
-    @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        String token = request.getHeader("token");
-        if (!JwtUtil.checkToken(token)) return false;
-        return HandlerInterceptor.super.preHandle(request, response, handler);
-    }
+    @Value("${jwt.key}")
+    private String secretKey;
+
+    @Value("${jwt.name}")
+    private String tokenName;
 
     @Override
-    public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
-        HandlerInterceptor.super.postHandle(request, response, handler, modelAndView);
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
+        try {
+            System.out.println(tokenName);
+            String token = request.getHeader(tokenName);
+            System.out.println(token);
+            // 解析Token，获取其中的Claims对象
+            Claims claims = JwtUtil.parseToken(secretKey, token);
+            // 从Claims中获取用户ID，并设置到上下文中
+            Object t = claims.get("teacherId");
+            Object s = claims.get("studentId");
+            if(t!=null) BaseContext.setCurrentId(Long.valueOf(Objects.requireNonNull(t.toString())));
+            else BaseContext.setCurrentId( Long.valueOf(Objects.requireNonNull(claims.get("studentId")).toString()));
+            return true;
+        } catch (Exception ex) {
+            // 解析Token失败，抛出自定义业务异常
+            throw new MyException(StatusCodeEnum.NOT_LOGIN);
+        }
+
     }
 
-    @Override
-    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
-        HandlerInterceptor.super.afterCompletion(request, response, handler, ex);
-    }
 }
