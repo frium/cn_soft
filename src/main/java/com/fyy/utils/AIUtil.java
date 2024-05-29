@@ -200,7 +200,6 @@ public class AIUtil extends WebSocketListener {
         }
         if (myJsonParse.header.status == 2) {
             // 可以关闭连接，释放资源
-            System.out.println();
             if (canAddHistory()) {
                 RoleContent roleContent = new RoleContent();
                 roleContent.setRole("assistant");
