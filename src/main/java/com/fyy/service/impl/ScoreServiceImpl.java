@@ -33,7 +33,7 @@ public class ScoreServiceImpl extends ServiceImpl<ScoreMapper, Score> implements
     public List<StudentScoreVo> getAllStudentsScores(PageDto pageDto) {
         Long currentId = BaseContext.getCurrentId();
         int offset = (pageDto.getPage() - 1) * pageDto.getPageSize();
-        List<StudentScoreVo> allStudentsScores = scoreMapper.getAllStudentsScores(currentId, offset, pageDto.getPageSize(), pageDto.getTitle());
+        List<StudentScoreVo> allStudentsScores = scoreMapper.getAllStudentsScores(currentId, offset, pageDto.getPageSize(), pageDto.getTitle(),false);
         if (allStudentsScores.isEmpty()) {
             throw new MyException(StatusCodeEnum.NOT_FOUND);
         }

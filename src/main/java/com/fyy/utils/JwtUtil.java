@@ -12,7 +12,6 @@ import java.util.Map;
  * @date 2024-05-17 21:21:52
  * @description
  */
-@Slf4j
 public class JwtUtil {
     /**
      * 创建JWT Token

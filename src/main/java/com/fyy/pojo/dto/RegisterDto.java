@@ -8,8 +8,10 @@ import lombok.Data;
  * @description
  */
 @Data
-public class UserDto {
+public class RegisterDto {
     private String password;
     private Long phone;
     private String personalId;
+    private Boolean isTeacher;
+    private String verify;
 }

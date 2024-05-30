@@ -10,7 +10,10 @@
         where student.teacher_id = #{ID}
           and score.title like CONCAT('%', #{title}, '%')
         order by score.title
-        limit #{offset}, #{pageSize};
+        <if test="fetchAll==false">
+            limit #{offset}, #{pageSize};
+        </if>
+
     </select>
     <select id="getStudentScores">
         select *

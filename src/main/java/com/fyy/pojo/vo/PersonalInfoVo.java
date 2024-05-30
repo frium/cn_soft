@@ -9,7 +9,6 @@ import lombok.Data;
  */
 @Data
 public class PersonalInfoVo {
-    private String id;
     private String teacherName;
     private String sex;
     private String name;

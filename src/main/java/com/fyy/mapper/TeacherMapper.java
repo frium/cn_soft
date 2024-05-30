@@ -15,5 +15,4 @@ import java.util.List;
  */
 @Mapper
 public interface TeacherMapper extends BaseMapper<Teacher> {
-
 }

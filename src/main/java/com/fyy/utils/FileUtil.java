@@ -1,5 +1,7 @@
 package com.fyy.utils;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import java.io.*;
 
 /**
@@ -21,6 +23,19 @@ public class FileUtil {
 		return data;
 	}
 
+	public static String convertMultipartFileToString(MultipartFile file) throws IOException {
+		StringBuilder stringBuilder = new StringBuilder();
+
+		try (InputStream inputStream = file.getInputStream();
+			 BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
+			String line;
+			while ((line = reader.readLine()) != null) {
+				stringBuilder.append(line);
+			}
+		}
+
+		return stringBuilder.toString();
+	}
 	/**
 	 * 流转二进制数组
 	 *

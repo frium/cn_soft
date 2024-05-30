@@ -1,25 +1,36 @@
 package com.fyy.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.fyy.common.MyException;
 import com.fyy.common.StatusCodeEnum;
+import com.fyy.context.BaseContext;
+import com.fyy.mapper.ScoreMapper;
+import com.fyy.mapper.StudentMapper;
 import com.fyy.mapper.TeacherMapper;
 import com.fyy.pojo.dto.ForgetPasswordDto;
 import com.fyy.pojo.dto.LoginDto;
-import com.fyy.pojo.dto.UserDto;
+import com.fyy.pojo.dto.RegisterDto;
+import com.fyy.pojo.entity.Score;
+import com.fyy.pojo.entity.Student;
 import com.fyy.pojo.entity.Teacher;
+import com.fyy.pojo.vo.StudentScoreVo;
+import com.fyy.service.ScoreService;
 import com.fyy.service.TeacherService;
+import com.fyy.utils.ExcelUtil;
 import com.fyy.utils.JwtUtil;
+import com.fyy.utils.ValueCheckUtil;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.io.IOException;
+import java.util.*;
 
 /**
  *
@@ -31,9 +42,17 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher> impl
     @Autowired
     TeacherMapper teacherMapper;
     @Autowired
+    StudentMapper studentMapper;
+    @Autowired
+    ScoreMapper scoreMapper;
+    @Autowired
     HttpServletResponse response;
     @Autowired
+    ScoreService scoreService;
+    @Autowired
     HttpSession httpSession;
+    @Autowired
+    RedisTemplate<Object,Object> redisTemplate;
     @Value("${jwt.key}")
     String key;
     @Value("${jwt.ttl}")
@@ -41,13 +60,13 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher> impl
 
     @Override
     public Teacher getTeacher(LoginDto loginDto) {
-        Teacher t;
-        if (loginDto.getUsername().length() == 11) {
-            t = lambdaQuery().eq(Teacher::getPhone, loginDto.getUsername()).eq(Teacher::getPassword, loginDto.getPassword()).one();
-        } else if (loginDto.getUsername().length() == 18) {
-            t = lambdaQuery().eq(Teacher::getPersonalId, loginDto.getUsername()).eq(Teacher::getPassword, loginDto.getPassword()).one();
-        } else {
-            throw new MyException(StatusCodeEnum.FAIL);
+        Teacher t = null;
+        if (ValueCheckUtil.checkPassword(loginDto.getPassword())) {
+            if (ValueCheckUtil.checkUsername(loginDto.getUsername()).equals("phone")) {
+                t = lambdaQuery().eq(Teacher::getPhone, loginDto.getUsername()).eq(Teacher::getPassword, loginDto.getPassword()).one();
+            } else {
+                t = lambdaQuery().eq(Teacher::getPersonalId, loginDto.getUsername()).eq(Teacher::getPassword, loginDto.getPassword()).one();
+            }
         }
         if (t != null) {
             Map<String, Object> claims = new HashMap<>();
@@ -61,13 +80,16 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher> impl
     }
 
     @Override
-    public void addTeacher(UserDto userDto) {
+    public void addTeacher(RegisterDto userDto) {
+        if(!userDto.getVerify().equals(redisTemplate.opsForValue().get("verify"))) throw new MyException(StatusCodeEnum.ERROR_VERIFY);
         //查询数据库中是否有相同的身份证或者电话,有的话直接pass
         Teacher t = lambdaQuery().eq(Teacher::getPhone, userDto.getPhone()).or().eq(Teacher::getPersonalId, userDto.getPersonalId()).one();
-        if (t != null) {
+        Student s = studentMapper.selectOne(new LambdaQueryWrapper<Student>()
+                .eq(Student::getPhone, userDto.getPhone())
+                .or().eq(Student::getPersonalId, userDto.getPersonalId()));
+        if (t != null && s != null) {
             throw new MyException(StatusCodeEnum.USER_EXIST);
         }
-        //给老师设置一个六位数的班级码
         String uuid = UUID.randomUUID().toString().replace("-", "");
         String classCode = uuid.substring(0, 6);
         Teacher teacher = new Teacher();
@@ -80,8 +102,33 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher> impl
     public String forgetPassword(ForgetPasswordDto forgetPasswordDto) {
         Teacher teacher = lambdaQuery().eq(Teacher::getPhone, forgetPasswordDto.getPhone())
                 .eq(Teacher::getPersonalId, forgetPasswordDto.getPersonalId()).one();
-        if (teacher==null) throw new MyException(StatusCodeEnum.USER_NOT_EXIST);
+        if (teacher == null) throw new MyException(StatusCodeEnum.USER_NOT_EXIST);
         else return teacher.getPassword();
+
+    }
+
+    @Override
+    public void loadScores(String title) {
+        Long currentId = BaseContext.getCurrentId();
+        List<StudentScoreVo> allStudentsScores = scoreMapper.getAllStudentsScores(currentId, 0, 0, title, true);
+        ExcelUtil.writeStudentScoresToExcel(allStudentsScores, response);
+    }
+
+    @Override
+    public void uploadScores(MultipartFile excel) {
+        try {
+            List<StudentScoreVo> studentScoreVos = ExcelUtil.parseExcel(excel);
+            List<Score> scores = new ArrayList<>();
+            for (StudentScoreVo studentScoreVo : studentScoreVos) {
+                Score score = new Score();
+                BeanUtils.copyProperties(studentScoreVo, score);
+                scores.add(score);
+            }
+            scoreService.saveBatch(scores);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
 
     }
 

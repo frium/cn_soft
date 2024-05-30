@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
+import java.util.Enumeration;
 import java.util.Objects;
 
 /**
@@ -30,9 +31,17 @@ public class TokenInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
         try {
-            System.out.println(tokenName);
+            //1.获取所有请求头名称
+            Enumeration<String> headerNames = request.getHeaderNames();
+            //2.遍历
+            while(headerNames.hasMoreElements()){
+                String name = headerNames.nextElement();
+                //根据名称获取请求头的值
+                String header = request.getHeader(name);
+                System.out.println(name + "-----" + header);
+
+            }
             String token = request.getHeader(tokenName);
-            System.out.println(token);
             // 解析Token，获取其中的Claims对象
             Claims claims = JwtUtil.parseToken(secretKey, token);
             // 从Claims中获取用户ID，并设置到上下文中

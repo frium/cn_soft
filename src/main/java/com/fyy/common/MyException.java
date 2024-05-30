@@ -12,6 +12,8 @@ import lombok.Getter;
 @AllArgsConstructor
 public class MyException extends RuntimeException {
 
+
+
     private StatusCodeEnum statusCodeEnum;
 
     private final Integer code;
@@ -24,8 +26,13 @@ public class MyException extends RuntimeException {
         this.message = statusCodeEnum.getDesc();
     }
 
-    public MyException(String message) {
-        this.code = StatusCodeEnum.FAIL.getCode();
+    public MyException(String message,Integer errCode) {
+        this.code = errCode;
         this.message = message;
     }
+    public MyException(String message){
+        this.code=-101;
+        this.message=message;
+    }
+
 }

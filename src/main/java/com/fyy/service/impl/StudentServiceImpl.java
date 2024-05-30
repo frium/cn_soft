@@ -1,7 +1,6 @@
 package com.fyy.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.fyy.common.MyException;
 import com.fyy.common.StatusCodeEnum;
@@ -11,17 +10,19 @@ import com.fyy.mapper.TeacherMapper;
 import com.fyy.pojo.dto.ForgetPasswordDto;
 import com.fyy.pojo.dto.LoginDto;
 import com.fyy.pojo.dto.PersonalInfoDto;
-import com.fyy.pojo.dto.UserDto;
+import com.fyy.pojo.dto.RegisterDto;
 import com.fyy.pojo.entity.Student;
 import com.fyy.pojo.entity.Teacher;
 import com.fyy.pojo.vo.PersonalInfoVo;
 import com.fyy.service.StudentService;
 import com.fyy.utils.JwtUtil;
+import com.fyy.utils.ValueCheckUtil;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -34,6 +35,8 @@ import java.util.Map;
  */
 @Service
 public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> implements StudentService {
+    @Autowired
+    RedisTemplate<Object,Object> redisTemplate;
     @Autowired
     StudentMapper studentMapper;
     @Autowired
@@ -49,13 +52,13 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
 
     @Override
     public Student getStudent(LoginDto loginDto) {
-        Student s;
-        if (loginDto.getUsername().length() == 11) {
-            s = lambdaQuery().eq(Student::getPhone, loginDto.getUsername()).eq(Student::getPassword, loginDto.getPassword()).one();
-        } else if (loginDto.getUsername().length() == 18) {
-            s = lambdaQuery().eq(Student::getPersonalId, loginDto.getUsername()).eq(Student::getPassword, loginDto.getPassword()).one();
-        } else {
-            throw new MyException(StatusCodeEnum.VALUE_ERROR);
+        Student s = null;
+        if (ValueCheckUtil.checkPassword(loginDto.getPassword())) {
+            if (ValueCheckUtil.checkUsername(loginDto.getUsername()).equals("phone")) {
+                s = lambdaQuery().eq(Student::getPhone, loginDto.getUsername()).eq(Student::getPassword, loginDto.getPassword()).one();
+            } else {
+                s = lambdaQuery().eq(Student::getPersonalId, loginDto.getUsername()).eq(Student::getPassword, loginDto.getPassword()).one();
+            }
         }
         if (s != null) {
             Map<String, Object> claims = new HashMap<>();
@@ -69,10 +72,14 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
     }
 
     @Override
-    public void addStudent(UserDto userDto) {
+    public void addStudent(RegisterDto userDto) {
+        if(!userDto.getVerify().equals(redisTemplate.opsForValue().get("verify"))) throw new MyException(StatusCodeEnum.ERROR_VERIFY);
         //查询数据库中是否有相同的身份证或者电话,有的话直接pass
         Student s = lambdaQuery().eq(Student::getPhone, userDto.getPhone()).or().eq(Student::getPersonalId, userDto.getPersonalId()).one();
-        if (s != null) {
+        Teacher t = teacherMapper.selectOne(new LambdaQueryWrapper<Teacher>()
+                .eq(Teacher::getPhone, userDto.getPhone())
+                .or().eq(Teacher::getPersonalId, userDto.getPersonalId()));
+        if (s != null && t != null) {
             throw new MyException(StatusCodeEnum.USER_EXIST);
         }
         Student student = new Student();
@@ -110,20 +117,19 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
     @Override
     public void modifyPersonalInfo(PersonalInfoDto personalInfoDto) {
         Long currentId = BaseContext.getCurrentId();
-        LambdaUpdateWrapper<Student> lambdaUpdateWrapper = new LambdaUpdateWrapper<>();
-        lambdaUpdateWrapper.eq(Student::getID, currentId);
-        lambdaUpdateWrapper.set(Student::getName, personalInfoDto.getName());
-        lambdaUpdateWrapper.set(Student::getPersonalId, personalInfoDto.getPersonalId());
-        lambdaUpdateWrapper.set(Student::getSex, personalInfoDto.getSex());
-        lambdaUpdateWrapper.set(Student::getPhone, personalInfoDto.getPhone());
-        if (studentMapper.update(lambdaUpdateWrapper) == 0) throw new MyException(StatusCodeEnum.FAIL);
+        Student student = new Student();
+        BeanUtils.copyProperties(personalInfoDto, student);
+        student.setID(currentId);
+        if (studentMapper.updateById(student) == 0) {
+            throw new MyException(StatusCodeEnum.FAIL);
+        }
     }
 
     @Override
     public String forgetPassword(ForgetPasswordDto forgetPasswordDto) {
         Student student = lambdaQuery().eq(Student::getPhone, forgetPasswordDto.getPhone())
                 .eq(Student::getPersonalId, forgetPasswordDto.getPersonalId()).one();
-        if (student==null) throw new MyException(StatusCodeEnum.USER_NOT_EXIST);
+        if (student == null) throw new MyException(StatusCodeEnum.USER_NOT_EXIST);
         else return student.getPassword();
     }
 

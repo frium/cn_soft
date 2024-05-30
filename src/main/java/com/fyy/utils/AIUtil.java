@@ -3,6 +3,9 @@ package com.fyy.utils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.fyy.common.MyException;
+import com.fyy.common.StatusCodeEnum;
+import com.fyy.pojo.entity.SparkClient;
 import com.google.gson.Gson;
 import okhttp3.*;
 import org.springframework.beans.factory.annotation.Value;
@@ -31,26 +34,23 @@ public class AIUtil extends WebSocketListener {
 
     public static String totalAnswer = ""; // 大模型的答案汇总
 
-    // 环境治理的重要性  环保  人口老龄化  我爱我的祖国
     public static String NewQuestion = "";
 
     public static final Gson gson = new Gson();
 
-    // 个性化参数
     private String userId;
     private static Boolean wsCloseFlag;
 
-    private static Boolean totalFlag = true; // 控制提示用户是否输入
 
     // 构造函数
     public AIUtil(String userId, Boolean wsCloseFlag) {
         this.userId = userId;
         this.wsCloseFlag = wsCloseFlag;
     }
-    public AIUtil(String appid,String apiKey,String apiSecret){
-        this.apiKey=apiKey;
-        this.appid=appid;
-        this.apiSecret=apiSecret;
+    public AIUtil(SparkClient sparkClient){
+        this.apiKey=sparkClient.apiKey;
+        this.appid=sparkClient.appid;
+        this.apiSecret=sparkClient.apiSecret;
     }
 
     public AIUtil() {
@@ -76,8 +76,6 @@ public class AIUtil extends WebSocketListener {
     // 主函数
     public void AIAnswer(String newQuestion) throws Exception {
         // 个性化参数入口，如果是并发使用，可以在这里模拟
-        if (totalFlag) {
-            totalFlag = false;
             NewQuestion = newQuestion;
             // 构建鉴权url
             String authUrl = getAuthUrl(hostUrl, apiKey, apiSecret);
@@ -86,15 +84,12 @@ public class AIUtil extends WebSocketListener {
             Request request = new Request.Builder().url(url).build();
             for (int i = 0; i < 1; i++) {
                 totalAnswer = "";
-                WebSocket webSocket = client.newWebSocket(request, new AIUtil(i + "",
-                        false));
+                WebSocket webSocket = client.newWebSocket(request, new AIUtil(i + "", false));
             }
-        } else {
-            Thread.sleep(200);
-        }
+
     }
 
-    public static boolean canAddHistory() {  // 由于历史记录最大上线1.2W左右，需要判断是能能加入历史
+    public  boolean canAddHistory() {  // 由于历史记录最大上线1.2W左右，需要判断是能能加入历史
         int history_length = 0;
         for (RoleContent temp : historyList) {
             history_length = history_length + temp.content.length();
@@ -180,57 +175,52 @@ public class AIUtil extends WebSocketListener {
     @Override
     public void onOpen(WebSocket webSocket, Response response) {
         super.onOpen(webSocket, response);
-        System.out.print("大模型：");
         MyThread myThread = new MyThread(webSocket);
         myThread.start();
     }
 
     @Override
     public void onMessage(WebSocket webSocket, String text) {
-        // System.out.println(userId + "用来区分那个用户的结果" + text);
         JsonParse myJsonParse = gson.fromJson(text, JsonParse.class);
         if (myJsonParse.header.code != 0) {
-            System.out.println("发生错误，错误码为：" + myJsonParse.header.code);
-            System.out.println("本次请求的sid为：" + myJsonParse.header.sid);
             webSocket.close(1000, "");
+            throw new MyException("本次请求的sid为：" + myJsonParse.header.sid,myJsonParse.header.code);
         }
         List<Text> textList = myJsonParse.payload.choices.text;
         for (Text temp : textList) {
             totalAnswer = totalAnswer + temp.content;
         }
         if (myJsonParse.header.status == 2) {
-            // 可以关闭连接，释放资源
-            if (canAddHistory()) {
-                RoleContent roleContent = new RoleContent();
-                roleContent.setRole("assistant");
-                roleContent.setContent(totalAnswer);
-                historyList.add(roleContent);
-            } else {
-                historyList.remove(0);
-                RoleContent roleContent = new RoleContent();
-                roleContent.setRole("assistant");
-                roleContent.setContent(totalAnswer);
-                historyList.add(roleContent);
-            }
+           // // 可以关闭连接，释放资源
+           // if (canAddHistory()) {
+           //     RoleContent roleContent = new RoleContent();
+           //     roleContent.setRole("assistant");
+           //     roleContent.setContent(totalAnswer);
+           //     historyList.add(roleContent);
+           // } else {
+           //     historyList.remove(0);
+           //     RoleContent roleContent = new RoleContent();
+           //     roleContent.setRole("assistant");
+           //     roleContent.setContent(totalAnswer);
+           //     historyList.add(roleContent);
+           // }
             wsCloseFlag = true;
-            totalFlag = true;
         }
     }
 
+    //出现错误的时候
     @Override
     public void onFailure(WebSocket webSocket, Throwable t, Response response) {
         super.onFailure(webSocket, t, response);
         try {
             if (null != response) {
                 int code = response.code();
-                System.out.println("onFailure code:" + code);
-                System.out.println("onFailure body:" + response.body().string());
                 if (101 != code) {
-                    System.out.println("connection failed");
                     System.exit(0);
+                    throw new MyException(StatusCodeEnum.AI_CONNECT_FAIL);
                 }
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }

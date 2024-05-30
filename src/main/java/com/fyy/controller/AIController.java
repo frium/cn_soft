@@ -1,11 +1,15 @@
 package com.fyy.controller;
 
 import com.fyy.common.R;
+import com.fyy.pojo.dto.TranslateByFileDto;
 import com.fyy.pojo.dto.TranslateDto;
+import com.fyy.pojo.entity.SparkClient;
+import com.fyy.service.AIService;
 import com.fyy.utils.AIUtil;
 import com.fyy.utils.ITSUtil;
 import com.fyy.utils.TextCorrectionUtil;
-import org.springframework.beans.factory.annotation.Value;
+import jakarta.annotation.Resource;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -17,39 +21,39 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequestMapping("/AI")
 public class AIController {
-    @Value("${ai.id}")
-    private String appid;
-    @Value("${ai.secret}")
-    private String apiSecret;
-    @Value("${ai.key}")
-    private String apiKey;
-
+    @Resource
+    private SparkClient sparkClient;
+    @Autowired
+    private AIService aiService;
 
     @PostMapping("/getAIAnswer")
-    public R<String> getAIAnswer(@RequestBody String question){
-        AIUtil aiUtil=new AIUtil(appid,apiKey,apiSecret);
+    public R<String> getAIAnswer(@RequestBody String question) {
+        AIUtil aiUtil = new AIUtil(sparkClient);
         return R.success(aiUtil.getAIAnswer(question));
-
-
     }
+
     //输入翻译
     @PostMapping("/translate")
-    public R<String> translate(@RequestBody TranslateDto translateDto) throws Exception {
-        return R.success(ITSUtil.AITranslate(translateDto.getFrom(),translateDto.getTo(),translateDto.getText()));
+    public R<String> translate(@RequestBody TranslateDto translateDto) {
+        ITSUtil itsUtil=new ITSUtil(sparkClient);
+        return R.success(itsUtil.AITranslate(translateDto.getFrom(), translateDto.getTo(), translateDto.getText()));
     }
+
     //文档翻译
     @PostMapping("/translateByFile")
-    public R<String> translateByFile(@RequestParam("file") MultipartFile file){
-        return null;
+    public R<String> translateByFile(@ModelAttribute TranslateByFileDto translateByFileDto) {
+        return R.success(aiService.translateByFile(translateByFileDto));
     }
+
     @PostMapping("/writing")
-    public R<String> writing (){
+    public R<String> writing() {
         return null;
     }
+
     //文本纠错
     @PostMapping("/textCorrection")
     public R<String> textCorrection(String text) throws Exception {
-        TextCorrectionUtil textCorrectionUtil=new TextCorrectionUtil();
+        TextCorrectionUtil textCorrectionUtil = new TextCorrectionUtil(sparkClient);
         return R.success(textCorrectionUtil.getTextCorrection(text));
     }
 

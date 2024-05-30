@@ -1,5 +1,6 @@
 package com.fyy.utils;
 
+import com.fyy.pojo.entity.SparkClient;
 import com.google.gson.Gson;
 import okhttp3.HttpUrl;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -26,33 +27,24 @@ import java.util.*;
 public class TextCorrectionUtil {
 
     /**
-     * 文本纠错 WebAPI 接口调用示例
-     * 运行前：请先填写Appid、APIKey、APISecret以及图片路径
-     * 运行方法：直接运行 main() 即可
-     * 结果： 控制台输出结果信息
-     * 接口文档（必看）：https://www.xfyun.cn/doc/nlp/textCorrection/API.html
-     * uid与res_id可以到ResIdGet上传和获取
-     *
-     * @author iflytek
+     * 文本纠错 WebAPI
      */
-    @Value("${ai.appid}")
-    public String appid;
-    @Value("${ai.apiSecret}")
-    public String apiSecret;
-    @Value("${ai.apiKey}")
-    public String apiKey;
     // 地址与鉴权信息
     public static final String hostUrl = "https://api.xf-yun.com/v1/private/s9a87e3ec";
-
+    private static String APPID;
+    private static String API_SECRET;
+    private static String API_KEY;
     // json
     public static final Gson gson = new Gson();
 
+    public TextCorrectionUtil(SparkClient sparkClient) {
+        APPID = sparkClient.appid;
+        API_SECRET = sparkClient.apiSecret;
+        API_KEY = sparkClient.apiKey;
+    }
     // 主函数
     public String getTextCorrection(String text) throws Exception {
-        System.out.println(appid);
-        System.out.println(apiSecret);
-        System.out.println(apiKey);
-        String url = getAuthUrl(hostUrl, apiKey, apiSecret);
+        String url = getAuthUrl(hostUrl, API_KEY, API_SECRET);
         String json = getRequestJson(text);
         String backResult = doPostJson(url, json);
         JsonParse jsonParse = gson.fromJson(backResult, JsonParse.class);
@@ -63,7 +55,7 @@ public class TextCorrectionUtil {
     public String getRequestJson(String text) {
         return "{\n" +
                 "  \"header\": {\n" +
-                "    \"app_id\": \"" + appid + "\",\n" +
+                "    \"app_id\": \"" + APPID + "\",\n" +
                 //"    \"uid\": \"fa6cf0c7-3852-4d69-8814-703dcf681d7c\",\n" +
                 "    \"status\": 3\n" +
                 "  },\n" +

@@ -9,6 +9,7 @@ import com.fyy.service.ScoreService;
 import com.fyy.service.TeacherService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -25,16 +26,6 @@ public class TeacherController {
     @Autowired
     TeacherService teacherService;
 
-    @PostMapping("/login")
-    public R<Teacher> teacherLogin(@RequestBody LoginDto teacher) {
-        return R.success(teacherService.getTeacher(teacher));
-    }
-
-    @PostMapping("/register")
-    public R<String> teacherRegister(@RequestBody UserDto teacher) {
-        teacherService.addTeacher(teacher);
-        return R.success();
-    }
     //获取指定的考试中所有学生的成绩
     @GetMapping("/getAllStudentsScores")
     public R<List<StudentScoreVo>> getAllStudentsScores(@RequestBody PageDto pageDto) {
@@ -42,7 +33,7 @@ public class TeacherController {
     }
 
     //获取所有考试title
-    @GetMapping("/getAllScores")
+    @PostMapping("/getAllScores")
     public R<List<String>> getAllScores(@RequestBody PageDto pageDto){
         return R.success(scoreService.getAllScores(pageDto));
     }
@@ -53,18 +44,21 @@ public class TeacherController {
         scoreService.addStudentScore(score);
         return R.success();
     }
-    //找回密码
-    @PostMapping("/forgetPassword")
-    public R<String> forgetPassword(@RequestBody ForgetPasswordDto forgetPasswordDto) {
-        return R.success(teacherService.forgetPassword(forgetPasswordDto));
-    }
 
-    //退出登录
-    @GetMapping("/logout")
-    public R<?> logout() {
-        BaseContext.removeCurrentId();
+
+
+
+    //通过导入excel添加学生的成绩
+    @PostMapping("/uploadScores")
+    public R<String>uploadScores(@RequestParam MultipartFile excel){
+        teacherService.uploadScores(excel);
         return R.success();
     }
 
-    //通过导入excel添加学生的成绩
+    //将当次考试的成绩导出
+    @GetMapping("/loadScores")
+    public R<String>loadScores(String title){
+        teacherService.loadScores(title);
+        return R.success();
+    }
 }

@@ -23,12 +23,11 @@ public class WebMvcConfig implements WebMvcConfigurer {
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(tokenInterceptor)
                 .addPathPatterns("/**")//添加拦截路径
-                .excludePathPatterns("/error","/*/login","/*/register")
+                .excludePathPatterns("/error","/*/login","/*/register","/*/getVerify")
                 .order(Ordered.HIGHEST_PRECEDENCE);
-
         registry.addInterceptor(roleInterceptor)
                 .addPathPatterns("/**")
-                .excludePathPatterns("/*/login","/*/register")
+                .excludePathPatterns("/*/login","/*/register","/*/getVerify")
                 .order(10);
     }
 }

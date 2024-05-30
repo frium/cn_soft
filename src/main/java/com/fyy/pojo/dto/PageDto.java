@@ -9,7 +9,7 @@ import lombok.Data;
  */
 @Data
 public class PageDto {
-    int page;
-    int pageSize;
+    Integer page;
+    Integer pageSize;
     String title;
 }

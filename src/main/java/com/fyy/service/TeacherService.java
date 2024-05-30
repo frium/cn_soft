@@ -3,8 +3,9 @@ package com.fyy.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.fyy.pojo.dto.ForgetPasswordDto;
 import com.fyy.pojo.dto.LoginDto;
-import com.fyy.pojo.dto.UserDto;
+import com.fyy.pojo.dto.RegisterDto;
 import com.fyy.pojo.entity.Teacher;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  *
@@ -15,6 +16,8 @@ public interface TeacherService extends IService<Teacher> {
     //老师账号登录
     Teacher getTeacher(LoginDto teacher);
     //老师注册
-    void addTeacher(UserDto teacher);
+    void addTeacher(RegisterDto teacher);
     String forgetPassword(ForgetPasswordDto forgetPasswordDto);
+    void loadScores(String title);
+    void uploadScores(MultipartFile excel);
 }

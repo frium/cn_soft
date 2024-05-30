@@ -1,5 +1,7 @@
 package com.fyy.utils;
 
+import com.fyy.common.MyException;
+import com.fyy.pojo.entity.SparkClient;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
@@ -15,60 +17,52 @@ import java.util.*;
 
 
 /**
- * 机器翻译 WebAPI 接口调用示例
- * 运行前：请先填写Appid、APIKey、APISecret
- * 运行方法：直接运行 main() 即可
- * 结果： 控制台输出结果信息
- *
- * 1.接口文档（必看）：https://www.xfyun.cn/doc/nlp/xftrans/API.html
- * 2.错误码链接：https://www.xfyun.cn/document/error-code （错误码code为5位数字）
- * @author iflytek
+ * 机器翻译
  */
 
+@SuppressWarnings("all")
 public class ITSUtil {
     // OTS webapi 接口地址
     private static final String WebITS_URL = "https://itrans.xfyun.cn/v2/its";
-    // 应用ID（到控制台获取）
-    private static final String APPID = "c705d6ea";
-    // 接口APISercet（到控制台机器翻译服务页面获取）
-    private static final String API_SECRET = "MDU2NzA2ZjUwZDZiNzkzNjY4ODU0MDBi";
-    // 接口APIKey（到控制台机器翻译服务页面获取）
-    private static final String API_KEY = "12d4ee8d1f52675287e09ecadc3c44f3";
+    private static String APPID;
+    private static String API_SECRET;
+    private static String API_KEY;
 
-    /**
-     * OTS WebAPI 调用示例程序
-     *
-     * @throws Exception
-     */
-    public static String AITranslate(String FROM, String TO, String TEXT) throws Exception {
-        if (APPID.equals("") || API_KEY.equals("") || API_SECRET.equals("")) {
-            System.out.println("Appid 或APIKey 或APISecret 为空！请打开demo代码，填写相关信息。");
-            return null;
-        }
-        String body = buildHttpBody(FROM, TO, TEXT);
-        //System.out.println("【ITSWebAPI body】\n" + body);
-        Map<String, String> header = buildHttpHeader(body);
-        Map<String, Object> resultMap = HttpUtil.doPost2(WebITS_URL, header, body);
-        if (resultMap != null) {
-            String resultStr = resultMap.get("body").toString();
-            //以下仅用于调试
-            Gson json = new Gson();
-            ResponseData resultData = json.fromJson(resultStr, ResponseData.class);
-            int code = resultData.getCode();
-            if (resultData.getCode() != 0) {
-                System.out.println("请前往https://www.xfyun.cn/document/error-code?code=" + code + "查询解决办法");
+    public ITSUtil(SparkClient sparkClient) {
+        APPID = sparkClient.appid;
+        API_SECRET = sparkClient.apiSecret;
+        API_KEY = sparkClient.apiKey;
+    }
+
+    public  String AITranslate(String FROM, String TO, String TEXT) {
+        try {
+            Map<String, String> header;
+            String body = buildHttpBody(FROM, TO, TEXT);
+            header = buildHttpHeader(body);
+            Map<String, Object> resultMap = HttpUtil.doPost2(WebITS_URL, header, body);
+            if (resultMap != null) {
+                String resultStr = resultMap.get("body").toString();
+                //以下仅用于调试
+                Gson json = new Gson();
+                ResponseData resultData = json.fromJson(resultStr, ResponseData.class);
+                int code = resultData.getCode();
+                if (resultData.getCode() != 0) {
+                    throw new MyException("请前往https://www.xfyun.cn/document/error-code查询解决办法", code);
+                }
+                return resultStr;
+            } else {
+                throw new MyException("调用失败！请根据错误信息检查代码，接口文档：https://www.xfyun.cn/doc/nlp/xftrans/API.html");
             }
-            return resultStr;
-        } else {
-            System.out.println("调用失败！请根据错误信息检查代码，接口文档：https://www.xfyun.cn/doc/nlp/xftrans/API.html");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
-        return null;
+
     }
 
     /**
      * 组装http请求头
      */
-    public static Map<String, String> buildHttpHeader(String body) throws Exception {
+    public  Map<String, String> buildHttpHeader(String body) throws Exception {
         Map<String, String> header = new HashMap<String, String>();
         URL url = new URL(WebITS_URL);
 
@@ -108,7 +102,7 @@ public class ITSUtil {
     /**
      * 组装http请求体
      */
-    public static String buildHttpBody(String FROM, String TO, String TEXT) throws Exception {
+    public  String buildHttpBody(String FROM, String TO, String TEXT) throws Exception {
         JsonObject body = new JsonObject();
         JsonObject business = new JsonObject();
         JsonObject common = new JsonObject();
@@ -135,7 +129,7 @@ public class ITSUtil {
     /**
      * 对body进行SHA-256加密
      */
-    private static String signBody(String body) throws Exception {
+    private  String signBody(String body) throws Exception {
         MessageDigest messageDigest;
         String encodestr = "";
         try {
@@ -153,7 +147,7 @@ public class ITSUtil {
     /**
      * hmacsha256加密
      */
-    private static String hmacsign(String signature, String apiSecret) throws Exception {
+    private  String hmacsign(String signature, String apiSecret) throws Exception {
         Charset charset = Charset.forName("UTF-8");
         Mac mac = Mac.getInstance("hmacsha256");
         SecretKeySpec spec = new SecretKeySpec(apiSecret.getBytes(charset), "hmacsha256");

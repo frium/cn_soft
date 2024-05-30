@@ -10,14 +10,14 @@ import lombok.Data;
 @Data
 public class ScoreDto {
     private Long studentId;
-    private Integer chinese;
-    private Integer math;
-    private Integer english;
-    private Integer physics;
-    private Integer chemistry;
-    private Integer history;
-    private Integer politics;
-    private Integer geography;
-    private Integer biology;
+    private Float chinese;
+    private Float math;
+    private Float english;
+    private Float physics;
+    private Float chemistry;
+    private Float history;
+    private Float politics;
+    private Float geography;
+    private Float biology;
     private String title;
 }
