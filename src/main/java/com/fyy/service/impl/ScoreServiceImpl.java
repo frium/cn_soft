@@ -9,7 +9,6 @@ import com.fyy.pojo.dto.PageDto;
 import com.fyy.pojo.dto.ScoreDto;
 import com.fyy.pojo.entity.Score;
 import com.fyy.pojo.vo.StudentScoreVo;
-import com.fyy.pojo.vo.StudentVo;
 import com.fyy.service.ScoreService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,9 +62,9 @@ public class ScoreServiceImpl extends ServiceImpl<ScoreMapper, Score> implements
     }
 
     @Override
-    public List<Score> getStudentScores() {
+    public List<StudentScoreVo> getStudentScores() {
         Long id = BaseContext.getCurrentId();
-        List<Score> studentScores = scoreMapper.getStudentScores(id);
+        List<StudentScoreVo> studentScores = scoreMapper.getStudentScores(id);
         if (studentScores.isEmpty()) {
             throw new MyException(StatusCodeEnum.NOT_FOUND);
         }

@@ -7,7 +7,7 @@
         select student.name, score.*
         from student
                  join score on score.student_id = student.student_id
-        where student.teacher_id = #{ID}
+        where student.teacher_id = #{id}
           and score.title like CONCAT('%', #{title}, '%')
         order by score.title
         <if test="fetchAll==false">
@@ -18,7 +18,21 @@
     <select id="getStudentScores">
         select *
         from score
-        where student_id = #{ID};
+        where student_id = #{id};
+    </select>
+    <select id="getStudentScoresLimit5">
+        select
+        <trim prefix="" suffixOverrides=",">
+            <if test="subjects != null and subjects.size() > 0">
+                <foreach collection="subjects" item="subject" separator=",">
+                    ${subject}
+                </foreach>
+            </if>
+        </trim>
+        from score
+        where student_id = #{id}
+        order by create_time desc
+        limit 5 ;
     </select>
     <select id="getAllScores">
         select distinct score.title

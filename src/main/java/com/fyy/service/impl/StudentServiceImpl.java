@@ -5,16 +5,18 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.fyy.common.MyException;
 import com.fyy.common.StatusCodeEnum;
 import com.fyy.context.BaseContext;
+import com.fyy.mapper.ScoreMapper;
 import com.fyy.mapper.StudentMapper;
 import com.fyy.mapper.TeacherMapper;
-import com.fyy.pojo.dto.ForgetPasswordDto;
-import com.fyy.pojo.dto.LoginDto;
-import com.fyy.pojo.dto.PersonalInfoDto;
-import com.fyy.pojo.dto.RegisterDto;
+import com.fyy.pojo.dto.*;
+import com.fyy.pojo.entity.Score;
+import com.fyy.pojo.entity.SparkClient;
 import com.fyy.pojo.entity.Student;
 import com.fyy.pojo.entity.Teacher;
 import com.fyy.pojo.vo.PersonalInfoVo;
+import com.fyy.pojo.vo.StudyPlanVo;
 import com.fyy.service.StudentService;
+import com.fyy.utils.AIUtil;
 import com.fyy.utils.JwtUtil;
 import com.fyy.utils.ValueCheckUtil;
 import jakarta.servlet.http.HttpServletResponse;
@@ -25,8 +27,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.time.LocalDateTime;
+import java.time.Year;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 /**
  *
@@ -36,7 +40,11 @@ import java.util.Map;
 @Service
 public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> implements StudentService {
     @Autowired
-    RedisTemplate<Object,Object> redisTemplate;
+    RedisTemplate<Object, Object> redisTemplate;
+    @Autowired
+    SparkClient sparkClient;
+    @Autowired
+    ScoreMapper scoreMapper;
     @Autowired
     StudentMapper studentMapper;
     @Autowired
@@ -73,7 +81,10 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
 
     @Override
     public void addStudent(RegisterDto userDto) {
-        if(!userDto.getVerify().equals(redisTemplate.opsForValue().get("verify"))) throw new MyException(StatusCodeEnum.ERROR_VERIFY);
+        if (!userDto.getVerify().equals(redisTemplate.opsForValue().get("verify"))) throw new MyException(StatusCodeEnum.ERROR_VERIFY);
+        ValueCheckUtil.checkPhone(String.valueOf(userDto.getPhone()));
+        ValueCheckUtil.checkPersonalId(userDto.getPersonalId());
+        ValueCheckUtil.checkPassword(userDto.getPassword());
         //查询数据库中是否有相同的身份证或者电话,有的话直接pass
         Student s = lambdaQuery().eq(Student::getPhone, userDto.getPhone()).or().eq(Student::getPersonalId, userDto.getPersonalId()).one();
         Teacher t = teacherMapper.selectOne(new LambdaQueryWrapper<Teacher>()
@@ -83,7 +94,17 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
             throw new MyException(StatusCodeEnum.USER_EXIST);
         }
         Student student = new Student();
+        //生成学号
+        String yearPart = String.valueOf(Year.now().getValue());
+        StringBuilder randomPart = new StringBuilder(8);
+        Random random = new Random();
+        for (int i = 0; i < 8; i++) {
+            randomPart.append(random.nextInt(10));
+        }
         BeanUtils.copyProperties(userDto, student);
+        student.setStudentId(yearPart+randomPart);
+        student.setName("学生"+yearPart+randomPart);
+        student.setSex("男");
         save(student);
     }
 
@@ -131,6 +152,50 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
                 .eq(Student::getPersonalId, forgetPasswordDto.getPersonalId()).one();
         if (student == null) throw new MyException(StatusCodeEnum.USER_NOT_EXIST);
         else return student.getPassword();
+    }
+
+    @Override
+    public String customizedPlan(PlanDto planDto) {
+        //获取当前学生的近五次成绩
+        Long currentId = BaseContext.getCurrentId();
+        String key ="historyPlan"+currentId;
+        List<Score> scores = scoreMapper.getStudentScoresLimit5(currentId,planDto.getSubjects());//获取需要定制计划的科目的成绩
+        StringBuilder question= new StringBuilder("你是我的班主任,接下来我需要你帮助我去定制一个学习计划,你只需要考虑" + planDto.getSubjects() +
+                "这科目,其他的不需要你考虑,这是我最近几次的这几科的考试成绩");
+        for (Score score : scores) {
+            question.append(score);
+        }
+        question.append("我的目标是").append(planDto.getTarget()).append("我预定的学习时间是").append(planDto.getTime())
+                .append("不要有总结之类的话,直接给我一个计划即可,但是尽可能的详细一点,并以班主任和学生交谈的口吻进行温柔的回答");
+        AIUtil aiUtil = new AIUtil(sparkClient);
+        String aiAnswer = aiUtil.getAIAnswer(question.toString());
+        //获取当前时间
+        LocalDateTime currentDateTime = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        String formattedDateTime = currentDateTime.format(formatter);
+        //从redis中获取数据,为null的话就添加,不为null就在原本的基础上添加 List
+        List<StudyPlanVo> studyPlanVos=(List<StudyPlanVo>)redisTemplate.opsForValue().get(key);
+        StudyPlanVo studyPlanVo=new StudyPlanVo();
+        studyPlanVo.setCreateTime(formattedDateTime);
+        studyPlanVo.setPlan(aiAnswer);
+        if (studyPlanVos == null) {studyPlanVos=new ArrayList<>();}
+        studyPlanVos.add(studyPlanVo);
+        redisTemplate.opsForValue().set("historyPlan"+currentId,studyPlanVos);
+        studentMapper.addStudyPlan(currentId,aiAnswer,formattedDateTime);
+        return aiAnswer;
+    }
+
+    @Override
+    public List<StudyPlanVo> getHistoryPlan() {
+        Long currentId = BaseContext.getCurrentId();
+        String key ="historyPlan"+currentId;
+        //从redis中获取
+        List<StudyPlanVo> studyPlanVos=(List<StudyPlanVo>)redisTemplate.opsForValue().get(key);
+        if(studyPlanVos==null){
+            studyPlanVos=studentMapper.getHistoryPlan(currentId);
+            redisTemplate.opsForValue().set(key,studyPlanVos);
+        }
+        return studyPlanVos;
     }
 
 }

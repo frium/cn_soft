@@ -5,9 +5,21 @@
 <mapper namespace="com.fyy.mapper.StudentMapper">
 
     <update id="addTeacher">
-        update student set teacher_id=(select id from teacher where teacher.class_code=#{classCode}) where id=#{ID};
+        update student
+        set teacher_id=(select id from teacher where teacher.class_code = #{classCode})
+        where id = #{id};
     </update>
     <select id="getPersonalInfo">
-select * from student ji;
+        select *
+        from student ji;
+    </select>
+    <insert id="addStudyPlan">
+        insert into study_plan
+        set student_id=(select student_id from student where id = #{id}),
+            plan=#{plan},
+            create_time=#{time}
+    </insert>
+    <select id="getHistoryPlan">
+        select * from study_plan where student_id=(select student_id from student where student.id=#{id})
     </select>
 </mapper>

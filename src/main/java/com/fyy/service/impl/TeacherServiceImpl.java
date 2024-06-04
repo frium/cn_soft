@@ -82,6 +82,9 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher> impl
     @Override
     public void addTeacher(RegisterDto userDto) {
         if(!userDto.getVerify().equals(redisTemplate.opsForValue().get("verify"))) throw new MyException(StatusCodeEnum.ERROR_VERIFY);
+        ValueCheckUtil.checkPhone(String.valueOf(userDto.getPhone()));
+        ValueCheckUtil.checkPersonalId(userDto.getPersonalId());
+        ValueCheckUtil.checkPassword(userDto.getPassword());
         //查询数据库中是否有相同的身份证或者电话,有的话直接pass
         Teacher t = lambdaQuery().eq(Teacher::getPhone, userDto.getPhone()).or().eq(Teacher::getPersonalId, userDto.getPersonalId()).one();
         Student s = studentMapper.selectOne(new LambdaQueryWrapper<Student>()
@@ -94,6 +97,8 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher> impl
         String classCode = uuid.substring(0, 6);
         Teacher teacher = new Teacher();
         teacher.setClassCode(classCode);
+        teacher.setName("教师"+classCode);
+        teacher.setSex("男");
         BeanUtils.copyProperties(userDto, teacher);
         save(teacher);
     }
@@ -128,10 +133,6 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher> impl
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
-
     }
-
-
 }
 

@@ -1,5 +1,6 @@
 package com.fyy.common;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -13,12 +14,12 @@ import java.util.Map;
  */
 @Data
 public class R<T> implements Serializable {
-
+    @ApiModelProperty(value = "响应码",required = true)
     private Integer code;
-
-    private String msg; //错误信息
-
-    private T data; //数据
+    @ApiModelProperty(value = "错误信息",required = true)
+    private String msg;
+    @ApiModelProperty(value = "数据",dataType = "String")
+    private T data;
 
     public static <T> R<T> success(T object) {
         R<T> result = new R<>();
@@ -41,7 +42,6 @@ public class R<T> implements Serializable {
         result.msg = msg;
         return result;
     }
-    //?
     public static <T> R<T> error(StatusCodeEnum statusCodeEnum) {
         R<T> result = new R<>();
         result.code = StatusCodeEnum.FAIL.getCode();

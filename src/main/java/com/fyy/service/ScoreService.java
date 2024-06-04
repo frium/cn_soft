@@ -5,7 +5,6 @@ import com.fyy.pojo.dto.PageDto;
 import com.fyy.pojo.dto.ScoreDto;
 import com.fyy.pojo.entity.Score;
 import com.fyy.pojo.vo.StudentScoreVo;
-import com.fyy.pojo.vo.StudentVo;
 
 import java.util.List;
 
@@ -22,5 +21,5 @@ public interface ScoreService extends IService<Score> {
     //添加学生的分数
     void addStudentScore(ScoreDto score);
     //获取学生成绩
-    List<Score> getStudentScores();
+    List<StudentScoreVo> getStudentScores();
 }

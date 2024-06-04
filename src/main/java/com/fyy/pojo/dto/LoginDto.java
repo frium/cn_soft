@@ -1,5 +1,7 @@
 package com.fyy.pojo.dto;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 /**
@@ -8,9 +10,13 @@ import lombok.Data;
  * @description
  */
 @Data
+@ApiModel("用户登录")
 public class LoginDto {
+    @ApiModelProperty(value = "密码",required = true)
     private String password;
+    @ApiModelProperty(value = "身份证或密码",required = true)
     private String username;
+    @ApiModelProperty(value = "是否是老师",required = true)
     private Boolean isTeacher;
 
 }

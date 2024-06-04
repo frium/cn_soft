@@ -20,9 +20,10 @@ public enum StatusCodeEnum {
     NOT_LOGIN(1003,"用户未登陆"),
     ERROR_VERIFY(1004,"验证码错误"),
     USER_NOT_EXIST(1004, "用户不存在"),
+    PERSONAL_ID_ERROR(1005,"身份证格式有误"),
+    PHONE_ERROR(1006,"手机号格式有误"),
+    PASSWORD_ERROR(1007,"密码格式有误"),
     AI_CONNECT_FAIL(5001,"获取ai连接失败!");
-
-
 
     private final Integer code;
 

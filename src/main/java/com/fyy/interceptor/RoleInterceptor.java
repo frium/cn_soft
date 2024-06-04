@@ -2,9 +2,9 @@ package com.fyy.interceptor;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
-import org.springframework.web.servlet.ModelAndView;
 
 /**
  *
@@ -12,6 +12,7 @@ import org.springframework.web.servlet.ModelAndView;
  * @description
  */
 
+@Slf4j
 @Component
 @SuppressWarnings("all")
 public class RoleInterceptor implements HandlerInterceptor {
@@ -20,8 +21,7 @@ public class RoleInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         String role = (String) request.getSession().getAttribute("userRole");
         String uri = request.getRequestURI();
-        System.out.println(uri);
-        System.out.println(role);
+        log.info(role+uri);
         // 根据角色和请求的URI判断是否有访问权限
         if ("student".equals(role) && uri.startsWith("/teacher")) {
            //重定向一下
@@ -30,15 +30,5 @@ public class RoleInterceptor implements HandlerInterceptor {
             return false;
         }
         return true;
-    }
-
-    @Override
-    public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
-        // 可以在这里添加一些处理逻辑
-    }
-
-    @Override
-    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
-        // 可以在这里添加一些处理逻辑
     }
 }
