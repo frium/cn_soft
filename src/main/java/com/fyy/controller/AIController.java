@@ -11,11 +11,13 @@ import com.fyy.service.AIService;
 import com.fyy.service.LanguageService;
 import com.fyy.utils.AIUtil;
 import com.fyy.utils.ITSUtil;
+import com.fyy.utils.OcrUtil;
 import com.fyy.utils.TextCorrectionUtil;
 import io.swagger.annotations.ApiOperation;
 import jakarta.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -76,4 +78,11 @@ public class AIController {
         return R.success(languageService.getTranslationLanguage());
     }
 
+    @ApiOperation("图片答题")
+    @PostMapping("/imageAnswer")
+    public R<?>imageAnswer(@RequestParam("image") MultipartFile image ) throws Exception {
+        OcrUtil ocrUtil=new OcrUtil(sparkClient);
+        AIUtil aiUtil=new AIUtil(sparkClient);
+        return  R.success(aiUtil.getAIAnswer(ocrUtil.imageRecognition(image)));
+    }
 }

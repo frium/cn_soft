@@ -24,7 +24,6 @@ public class RoleInterceptor implements HandlerInterceptor {
         log.info(role+uri);
         // 根据角色和请求的URI判断是否有访问权限
         if ("student".equals(role) && uri.startsWith("/teacher")) {
-           //重定向一下
             return false;
         } else if ("teacher".equals(role) && uri.startsWith("/student")) {
             return false;

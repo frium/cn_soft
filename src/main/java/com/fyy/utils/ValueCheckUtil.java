@@ -11,30 +11,33 @@ import java.util.regex.Pattern;
  * @description
  */
 public class ValueCheckUtil {
-    public static boolean checkPhone(String phone){
-        if(Pattern.matches("^1[3456789]\\d{9}$", phone)){
-            return true;
+    public static void checkPhone(String phone) {
+        if (!Pattern.matches("^1[3456789]\\d{9}$", phone)) {
+            throw new MyException(StatusCodeEnum.PHONE_ERROR);
         }
-        throw new MyException(StatusCodeEnum.PHONE_ERROR);
+
     }
-    public static boolean checkPassword(String password){
-        if(password.length() > 7 && password.length() < 17){
+
+    public static boolean checkPassword(String password) {
+        if (password.length() > 7 && password.length() < 17) {
             return true;
         }
         throw new MyException(StatusCodeEnum.PASSWORD_ERROR);
     }
-    public static boolean checkPersonalId(String personalId){
-        if( Pattern.matches("^(\\d{15}$|^\\d{18}$|^\\d{17}(\\d|X|x))$",personalId)){
-            return true;
+
+    public static void checkPersonalId(String personalId) {
+        if (!Pattern.matches("^(\\d{15}$|^\\d{18}$|^\\d{17}(\\d|X|x))$", personalId)) {
+            throw new MyException(StatusCodeEnum.PERSONAL_ID_ERROR);
         }
-        throw new MyException(StatusCodeEnum.PERSONAL_ID_ERROR);
+
     }
-    public static String checkUsername(String username){
-        if(checkPhone(username)){
+
+    public static String checkUsername(String username) {
+        if (Pattern.matches("^1[3456789]\\d{9}$", username)) {
             return "phone";
-        }else if(checkPersonalId(username)){
+        } else if (Pattern.matches("^(\\d{15}$|^\\d{18}$|^\\d{17}(\\d|X|x))$", username)) {
             return "personalId";
-        }else {
+        } else {
             throw new MyException(StatusCodeEnum.VALUE_ERROR);
         }
     }

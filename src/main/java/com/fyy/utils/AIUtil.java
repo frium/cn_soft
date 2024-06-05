@@ -8,28 +8,20 @@ import com.fyy.common.StatusCodeEnum;
 import com.fyy.pojo.entity.SparkClient;
 import com.google.gson.Gson;
 import okhttp3.*;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.stereotype.Component;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
-import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
 @SuppressWarnings("all")
-@Component
 public class AIUtil extends WebSocketListener {
     public static final String hostUrl = "https://spark-api.xf-yun.com/v3.5/chat";
-    private static String appid;
-
-    private static String apiSecret;
-
-    private static String apiKey;
-
+    private static String APPID;
+    private static String API_SECRET;
+    private static String API_KEY;
     public static List<RoleContent> historyList = new ArrayList<>(); // 对话历史存储集合
 
     public static String totalAnswer = ""; // 大模型的答案汇总
@@ -48,9 +40,9 @@ public class AIUtil extends WebSocketListener {
         this.wsCloseFlag = wsCloseFlag;
     }
     public AIUtil(SparkClient sparkClient){
-        this.apiKey=sparkClient.apiKey;
-        this.appid=sparkClient.appid;
-        this.apiSecret=sparkClient.apiSecret;
+        this.API_KEY=sparkClient.apiKey;
+        this.APPID=sparkClient.appid;
+        this.API_SECRET=sparkClient.apiSecret;
     }
 
     public AIUtil() {
@@ -78,7 +70,7 @@ public class AIUtil extends WebSocketListener {
         // 个性化参数入口，如果是并发使用，可以在这里模拟
             NewQuestion = newQuestion;
             // 构建鉴权url
-            String authUrl = getAuthUrl(hostUrl, apiKey, apiSecret);
+            String authUrl = getAuthUrl(hostUrl, API_KEY, API_SECRET);
             OkHttpClient client = new OkHttpClient.Builder().build();
             String url = authUrl.toString().replace("http://", "ws://").replace("https://", "wss://");
             Request request = new Request.Builder().url(url).build();
@@ -119,7 +111,7 @@ public class AIUtil extends WebSocketListener {
                 JSONObject requestJson = new JSONObject();
 
                 JSONObject header = new JSONObject();  // header参数
-                header.put("app_id", appid);
+                header.put("app_id", APPID);
                 header.put("uid", UUID.randomUUID().toString().substring(0, 10));
 
                 JSONObject parameter = new JSONObject(); // parameter参数

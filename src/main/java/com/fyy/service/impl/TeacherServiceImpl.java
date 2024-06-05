@@ -71,7 +71,7 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher> impl
         if (t != null) {
             Map<String, Object> claims = new HashMap<>();
             claims.put("teacherId", t.getID());
-            response.setHeader("token", JwtUtil.createToken(key, ttl, claims));
+            response.setHeader("Authorization", JwtUtil.createToken(key, ttl, claims));
             httpSession.setAttribute("userRole", "teacher");
         } else {
             throw new MyException(StatusCodeEnum.LOGIN_FAIL);
@@ -122,14 +122,8 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher> impl
     @Override
     public void uploadScores(MultipartFile excel) {
         try {
-            List<StudentScoreVo> studentScoreVos = ExcelUtil.parseExcel(excel);
-            List<Score> scores = new ArrayList<>();
-            for (StudentScoreVo studentScoreVo : studentScoreVos) {
-                Score score = new Score();
-                BeanUtils.copyProperties(studentScoreVo, score);
-                scores.add(score);
-            }
-            scoreService.saveBatch(scores);
+            List<Score> studentScoreVos = ExcelUtil.parseExcel(excel);
+            scoreService.saveBatch(studentScoreVos);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

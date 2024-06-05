@@ -58,8 +58,9 @@ public class UserController {
     @ApiOperation("登录")
     @PostMapping("/login")
     public R<?> login(@RequestBody LoginDto loginDto) {
-        if (loginDto.getIsTeacher()) return R.success(teacherService.getTeacher(loginDto));
-        else return R.success(studentService.getStudent(loginDto));
+        if (loginDto.getIsTeacher())  teacherService.getTeacher(loginDto);
+        else studentService.getStudent(loginDto);
+        return R.success();
     }
 
     @ApiOperation("注册")

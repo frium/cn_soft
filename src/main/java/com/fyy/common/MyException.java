@@ -13,26 +13,30 @@ import lombok.Getter;
 public class MyException extends RuntimeException {
 
 
-
     private StatusCodeEnum statusCodeEnum;
 
     private final Integer code;
 
     private final String message;
 
+    private final Integer httpStatusCode;
+
     public MyException(StatusCodeEnum statusCodeEnum) {
         this.statusCodeEnum = statusCodeEnum;
         this.code = statusCodeEnum.getCode();
         this.message = statusCodeEnum.getDesc();
+        this.httpStatusCode = statusCodeEnum.getHttpStatusCode();
     }
 
-    public MyException(String message,Integer errCode) {
-        this.code = errCode;
+    public MyException(String message) {
+        this.code = StatusCodeEnum.FAIL.getCode();
         this.message = message;
+        this.httpStatusCode = StatusCodeEnum.FAIL.getHttpStatusCode();
     }
-    public MyException(String message){
-        this.code=-101;
-        this.message=message;
+    public MyException(String message,int code) {
+        this.code = code;
+        this.message = message;
+        this.httpStatusCode = StatusCodeEnum.FAIL.getHttpStatusCode();
     }
 
 }

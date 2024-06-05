@@ -16,6 +16,6 @@ import java.util.List;
 public interface ScoreMapper extends BaseMapper<Score> {
     List<StudentScoreVo> getAllStudentsScores(Long id, int offset, int pageSize, String title,boolean fetchAll);
     List<StudentScoreVo> getStudentScores(Long id);
-    List<String> getAllScores(int offset, int pageSize);
+    List<String> getAllScores(int offset, int pageSize,String title);
     List<Score> getStudentScoresLimit5(Long id, List<String> subjects);
 }

@@ -1,5 +1,6 @@
 package com.fyy.utils;
 
+import com.fyy.pojo.entity.Score;
 import com.fyy.pojo.vo.StudentScoreVo;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.poi.ss.usermodel.*;
@@ -7,11 +8,11 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayOutputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.UUID;
 
 /**
  *
@@ -24,8 +25,8 @@ public class ExcelUtil {
      * @param file MultipartFile 形式的 Excel 文件
      * @return 二维字符串列表，包含 Excel 表格数据
      */
-    public static List<StudentScoreVo> parseExcel(MultipartFile file) throws IOException {
-        List<StudentScoreVo> studentScores = new ArrayList<>();
+    public static List<Score> parseExcel(MultipartFile file) throws IOException {
+        List<Score> studentScores = new ArrayList<>();
         try (Workbook workbook = WorkbookFactory.create(file.getInputStream())) {
             Sheet sheet = workbook.getSheetAt(0);
             for (int rowNum = 1; rowNum <= sheet.getLastRowNum(); rowNum++) {
@@ -36,8 +37,13 @@ public class ExcelUtil {
                     Cell cell = cellIterator.next();
                     cells.add(getCellValueAsString(cell));
                 }
+                String fileName = file.getOriginalFilename();
                 // 转换行数据为 StudentScoreVo 对象并添加到列表中
-                studentScores.add(StudentScoreVo.fromRowData(cells, file.getName()));
+                if (fileName != null) {
+                    studentScores.add(Score.fromRowData(cells, fileName.substring(0,fileName.lastIndexOf("."))));
+                }else {
+                    studentScores.add(Score.fromRowData(cells, UUID.randomUUID().toString().substring(0,30)));
+                }
             }
         }
         return studentScores;

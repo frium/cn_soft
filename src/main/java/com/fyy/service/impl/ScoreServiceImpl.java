@@ -41,8 +41,8 @@ public class ScoreServiceImpl extends ServiceImpl<ScoreMapper, Score> implements
 
     @Override
     public List<String> getAllScores(PageDto pageDto) {
-        int offset = (pageDto.getPageSize() - 1) * pageDto.getPage();
-        List<String> allTitle = scoreMapper.getAllScores(offset, pageDto.getPageSize());
+        int offset = (pageDto.getPage() - 1) * pageDto.getPageSize();
+        List<String> allTitle = scoreMapper.getAllScores(offset, pageDto.getPageSize(),pageDto.getTitle());
         if (allTitle.isEmpty()) {
             throw new MyException(StatusCodeEnum.NOT_FOUND);
         }
@@ -54,8 +54,7 @@ public class ScoreServiceImpl extends ServiceImpl<ScoreMapper, Score> implements
         Score score = new Score();
         BeanUtils.copyProperties(scoreDto, score);
         LocalDateTime currentDateTime = LocalDateTime.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        String formattedDateTime = currentDateTime.format(formatter);
+        String formattedDateTime = currentDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         score.setCreateTime(formattedDateTime);
         score.setUpdateTime(formattedDateTime);
         save(score);

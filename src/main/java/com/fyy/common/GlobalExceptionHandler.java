@@ -1,7 +1,10 @@
 package com.fyy.common;
 
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -13,16 +16,27 @@ import org.springframework.web.bind.annotation.*;
 @ResponseBody
 @Slf4j
 public class GlobalExceptionHandler {
+    @Autowired
+    private HttpServletResponse response;
 
-    /**
-     * 处理自定义的业务异常
-     */
-    @ExceptionHandler(value = MyException.class)
-    public R<String> bizExceptionHandler(MyException e) {
-        log.error("发生业务异常！ msg: -> ", e);
+    @ExceptionHandler
+    public R<?> myExceptionHandler(MyException e) {
+        log.info("业务异常信息：{}", e.getMessage());
+        if (e.getStatusCodeEnum() != null) {
+            response.setStatus(e.getHttpStatusCode());
+            return R.error(e.getStatusCodeEnum());
+        }
+        response.setStatus(e.getHttpStatusCode());
         return R.error(e.getMessage());
     }
 
+
+    @ExceptionHandler
+    public R<?> formatExceptionHandler(HttpMediaTypeNotSupportedException e) {
+        log.error("参数格式错误, {}", e.getMessage());
+        response.setStatus(StatusCodeEnum.VALUE_ERROR.getHttpStatusCode());
+        return R .error(StatusCodeEnum.VALUE_ERROR);
+    }
     /**
      * 处理空指针的异常
      */

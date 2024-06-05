@@ -4,8 +4,6 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  *
@@ -44,7 +42,7 @@ public class R<T> implements Serializable {
     }
     public static <T> R<T> error(StatusCodeEnum statusCodeEnum) {
         R<T> result = new R<>();
-        result.code = StatusCodeEnum.FAIL.getCode();
+        result.code = statusCodeEnum.getCode();
         result.msg = statusCodeEnum.getDesc();
         return result;
     }

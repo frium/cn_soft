@@ -16,8 +16,8 @@ public class FileUtil {
 	 * @return 文件内容的二进制数组
 	 * @throws IOException 如果发生 I/O 错误
 	 */
-	public static byte[] read(String filePath) throws IOException {
-		InputStream in = new FileInputStream(filePath);
+	public static byte[] read(MultipartFile file) throws IOException {
+		InputStream in = file.getInputStream();
 		byte[] data = inputStream2ByteArray(in);
 		in.close();
 		return data;

@@ -8,8 +8,8 @@
         from student
                  join score on score.student_id = student.student_id
         where student.teacher_id = #{id}
-          and score.title like CONCAT('%', #{title}, '%')
-        order by score.title
+          and score.title = #{title}
+        order by score.create_time
         <if test="fetchAll==false">
             limit #{offset}, #{pageSize};
         </if>
@@ -35,9 +35,9 @@
         limit 5 ;
     </select>
     <select id="getAllScores">
-        select distinct score.title
-        from score
-        order by score.title
+        select distinct title
+        from score where title like  concat('%', #{title}, '%')
+        order by title
         limit #{offset}, #{pageSize};
     </select>
 </mapper>

@@ -71,7 +71,7 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
         if (s != null) {
             Map<String, Object> claims = new HashMap<>();
             claims.put("studentId", s.getID());
-            response.setHeader("token", JwtUtil.createToken(key, ttl, claims));//设置token到请求头中
+            response.setHeader("Authorization", JwtUtil.createToken(key, ttl, claims));//设置token到请求头中
             httpSession.setAttribute("userRole", "student");
         } else {
             throw new MyException(StatusCodeEnum.LOGIN_FAIL);
@@ -137,6 +137,16 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
 
     @Override
     public void modifyPersonalInfo(PersonalInfoDto personalInfoDto) {
+        ValueCheckUtil.checkPhone(String.valueOf(personalInfoDto.getPhone()));
+        ValueCheckUtil.checkPersonalId(personalInfoDto.getPersonalId());
+        //查询数据库中是否有相同的身份证或者电话,有的话直接pass
+        Student s = lambdaQuery().eq(Student::getPhone, personalInfoDto.getPhone()).or().eq(Student::getPersonalId, personalInfoDto.getPersonalId()).one();
+        Teacher t = teacherMapper.selectOne(new LambdaQueryWrapper<Teacher>()
+                .eq(Teacher::getPhone, personalInfoDto.getPhone())
+                .or().eq(Teacher::getPersonalId, personalInfoDto.getPersonalId()));
+        if (s != null && t != null) {
+            throw new MyException(StatusCodeEnum.USER_EXIST);
+        }
         Long currentId = BaseContext.getCurrentId();
         Student student = new Student();
         BeanUtils.copyProperties(personalInfoDto, student);
