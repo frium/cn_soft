@@ -6,9 +6,9 @@ import cn.hutool.core.codec.Base64;
 import cn.hutool.core.io.IoUtil;
 import com.fyy.common.R;
 import com.fyy.context.BaseContext;
-import com.fyy.pojo.dto.ForgetPasswordDto;
-import com.fyy.pojo.dto.LoginDto;
-import com.fyy.pojo.dto.RegisterDto;
+import com.fyy.pojo.dto.ForgetPasswordDTO;
+import com.fyy.pojo.dto.LoginDTO;
+import com.fyy.pojo.dto.RegisterDTO;
 import com.fyy.service.StudentService;
 import com.fyy.service.TeacherService;
 import io.swagger.annotations.ApiOperation;
@@ -60,7 +60,7 @@ public class UserController {
 
     @ApiOperation("登录")
     @PostMapping("/login")
-    public R<?> login(@Valid @RequestBody LoginDto loginDto) {
+    public R<?> login(@Valid @RequestBody LoginDTO loginDto) {
         if (loginDto.getIsTeacher()) teacherService.getTeacher(loginDto);
         else studentService.getStudent(loginDto);
         return R.success();
@@ -68,7 +68,7 @@ public class UserController {
 
     @ApiOperation("注册")
     @PostMapping("/register")
-    public R<?> register(@Valid @RequestBody RegisterDto registerDto) {
+    public R<?> register(@Valid @RequestBody RegisterDTO registerDto) {
         if (registerDto.getIsTeacher()) teacherService.addTeacher(registerDto);
         else studentService.addStudent(registerDto);
         return R.success();
@@ -76,7 +76,7 @@ public class UserController {
 
     @ApiOperation("忘记密码")
     @PostMapping("/forgetPassword")
-    public R<String> forgetPassword(@Valid @RequestBody ForgetPasswordDto forgetPasswordDto) {
+    public R<String> forgetPassword(@Valid @RequestBody ForgetPasswordDTO forgetPasswordDto) {
         String password = studentService.forgetPassword(forgetPasswordDto);
         if (password.isEmpty()) return R.success(teacherService.forgetPassword(forgetPasswordDto));
         else return R.success(password);

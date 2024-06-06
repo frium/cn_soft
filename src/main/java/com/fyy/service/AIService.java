@@ -1,7 +1,7 @@
 package com.fyy.service;
 
-import com.fyy.pojo.dto.CompositionDto;
-import com.fyy.pojo.dto.TranslateByFileDto;
+import com.fyy.pojo.dto.CompositionDTO;
+import com.fyy.pojo.dto.TranslateByFileDTO;
 
 /**
  *
@@ -10,6 +10,6 @@ import com.fyy.pojo.dto.TranslateByFileDto;
  */
 
 public interface AIService {
-    String translateByFile(TranslateByFileDto translateByFileDto);
-    String aiWriteComposition(CompositionDto compositionDto);
+    String translateByFile(TranslateByFileDTO translateByFileDto);
+    String aiWriteComposition(CompositionDTO compositionDto);
 }

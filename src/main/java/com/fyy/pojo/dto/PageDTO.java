@@ -13,7 +13,7 @@ import lombok.Data;
  */
 @Data
 @ApiModel("成绩分页查询")
-public class PageDto {
+public class PageDTO {
 
     @NotEmpty(message = "最小从第一页展示")
     @ApiModelProperty(value = "页数",required = true)

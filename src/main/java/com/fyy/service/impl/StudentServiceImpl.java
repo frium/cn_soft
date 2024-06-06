@@ -13,8 +13,8 @@ import com.fyy.pojo.entity.Score;
 import com.fyy.pojo.entity.SparkClient;
 import com.fyy.pojo.entity.Student;
 import com.fyy.pojo.entity.Teacher;
-import com.fyy.pojo.vo.PersonalInfoVo;
-import com.fyy.pojo.vo.StudyPlanVo;
+import com.fyy.pojo.vo.PersonalInfoVO;
+import com.fyy.pojo.vo.StudyPlanVO;
 import com.fyy.service.StudentService;
 import com.fyy.utils.AIUtil;
 import com.fyy.utils.JwtUtil;
@@ -59,7 +59,7 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
     Long ttl;
 
     @Override
-    public Student getStudent(LoginDto loginDto) {
+    public Student getStudent(LoginDTO loginDto) {
         Student s = null;
         if (ValueCheckUtil.checkPassword(loginDto.getPassword())) {
             if (ValueCheckUtil.checkUsername(loginDto.getUsername()).equals("phone")) {
@@ -80,7 +80,7 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
     }
 
     @Override
-    public void addStudent(RegisterDto userDto) {
+    public void addStudent(RegisterDTO userDto) {
         if (!userDto.getVerify().equals(redisTemplate.opsForValue().get("verify"))) throw new MyException(StatusCodeEnum.ERROR_VERIFY);
         ValueCheckUtil.checkPhone(String.valueOf(userDto.getPhone()));
         ValueCheckUtil.checkPersonalId(userDto.getPersonalId());
@@ -123,10 +123,10 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
     }
 
     @Override
-    public PersonalInfoVo getPersonalInfo() {
+    public PersonalInfoVO getPersonalInfo() {
         Long currentId = BaseContext.getCurrentId();
         Student student = studentMapper.selectOne(new LambdaQueryWrapper<Student>().eq(Student::getID, currentId));
-        PersonalInfoVo personalInfoVo = new PersonalInfoVo();
+        PersonalInfoVO personalInfoVo = new PersonalInfoVO();
         BeanUtils.copyProperties(student, personalInfoVo);
         Teacher teacher = teacherMapper.selectOne(new LambdaQueryWrapper<Teacher>().eq(Teacher::getID, student.getTeacherId()));
         if (teacher != null) {
@@ -136,7 +136,7 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
     }
 
     @Override
-    public void modifyPersonalInfo(PersonalInfoDto personalInfoDto) {
+    public void modifyPersonalInfo(PersonalInfoDTO personalInfoDto) {
         ValueCheckUtil.checkPhone(String.valueOf(personalInfoDto.getPhone()));
         ValueCheckUtil.checkPersonalId(personalInfoDto.getPersonalId());
         //查询数据库中是否有相同的身份证或者电话,有的话直接pass
@@ -157,7 +157,7 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
     }
 
     @Override
-    public String forgetPassword(ForgetPasswordDto forgetPasswordDto) {
+    public String forgetPassword(ForgetPasswordDTO forgetPasswordDto) {
         Student student = lambdaQuery().eq(Student::getPhone, forgetPasswordDto.getPhone())
                 .eq(Student::getPersonalId, forgetPasswordDto.getPersonalId()).one();
         if (student == null) throw new MyException(StatusCodeEnum.USER_NOT_EXIST);
@@ -165,7 +165,7 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
     }
 
     @Override
-    public String customizedPlan(PlanDto planDto) {
+    public String customizedPlan(PlanDTO planDto) {
         //获取当前学生的近五次成绩
         Long currentId = BaseContext.getCurrentId();
         String key ="historyPlan"+currentId;
@@ -184,28 +184,29 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         String formattedDateTime = currentDateTime.format(formatter);
         //从redis中获取数据,为null的话就添加,不为null就在原本的基础上添加 List
-        List<StudyPlanVo> studyPlanVos=(List<StudyPlanVo>)redisTemplate.opsForValue().get(key);
-        StudyPlanVo studyPlanVo=new StudyPlanVo();
+        List<StudyPlanVO> studyPlanVOS =(List<StudyPlanVO>)redisTemplate.opsForValue().get(key);
+        StudyPlanVO studyPlanVo=new StudyPlanVO();
         studyPlanVo.setCreateTime(formattedDateTime);
         studyPlanVo.setPlan(aiAnswer);
-        if (studyPlanVos == null) {studyPlanVos=new ArrayList<>();}
-        studyPlanVos.add(studyPlanVo);
-        redisTemplate.opsForValue().set("historyPlan"+currentId,studyPlanVos);
+        if (studyPlanVOS == null) {
+            studyPlanVOS =new ArrayList<>();}
+        studyPlanVOS.add(studyPlanVo);
+        redisTemplate.opsForValue().set("historyPlan"+currentId, studyPlanVOS);
         studentMapper.addStudyPlan(currentId,aiAnswer,formattedDateTime);
         return aiAnswer;
     }
 
     @Override
-    public List<StudyPlanVo> getHistoryPlan() {
+    public List<StudyPlanVO> getHistoryPlan() {
         Long currentId = BaseContext.getCurrentId();
         String key ="historyPlan"+currentId;
         //从redis中获取
-        List<StudyPlanVo> studyPlanVos=(List<StudyPlanVo>)redisTemplate.opsForValue().get(key);
-        if(studyPlanVos==null){
-            studyPlanVos=studentMapper.getHistoryPlan(currentId);
-            redisTemplate.opsForValue().set(key,studyPlanVos);
+        List<StudyPlanVO> studyPlanVOS =(List<StudyPlanVO>)redisTemplate.opsForValue().get(key);
+        if(studyPlanVOS ==null){
+            studyPlanVOS =studentMapper.getHistoryPlan(currentId);
+            redisTemplate.opsForValue().set(key, studyPlanVOS);
         }
-        return studyPlanVos;
+        return studyPlanVOS;
     }
 
 }

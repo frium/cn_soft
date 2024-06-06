@@ -8,13 +8,13 @@ import com.fyy.context.BaseContext;
 import com.fyy.mapper.ScoreMapper;
 import com.fyy.mapper.StudentMapper;
 import com.fyy.mapper.TeacherMapper;
-import com.fyy.pojo.dto.ForgetPasswordDto;
-import com.fyy.pojo.dto.LoginDto;
-import com.fyy.pojo.dto.RegisterDto;
+import com.fyy.pojo.dto.ForgetPasswordDTO;
+import com.fyy.pojo.dto.LoginDTO;
+import com.fyy.pojo.dto.RegisterDTO;
 import com.fyy.pojo.entity.Score;
 import com.fyy.pojo.entity.Student;
 import com.fyy.pojo.entity.Teacher;
-import com.fyy.pojo.vo.StudentScoreVo;
+import com.fyy.pojo.vo.StudentScoreVO;
 import com.fyy.service.ScoreService;
 import com.fyy.service.TeacherService;
 import com.fyy.utils.ExcelUtil;
@@ -59,7 +59,7 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher> impl
     long ttl;
 
     @Override
-    public Teacher getTeacher(LoginDto loginDto) {
+    public Teacher getTeacher(LoginDTO loginDto) {
         Teacher t = null;
         if (ValueCheckUtil.checkPassword(loginDto.getPassword())) {
             if (ValueCheckUtil.checkUsername(loginDto.getUsername()).equals("phone")) {
@@ -80,7 +80,7 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher> impl
     }
 
     @Override
-    public void addTeacher(RegisterDto userDto) {
+    public void addTeacher(RegisterDTO userDto) {
         if(!userDto.getVerify().equals(redisTemplate.opsForValue().get("verify"))) throw new MyException(StatusCodeEnum.ERROR_VERIFY);
         ValueCheckUtil.checkPhone(String.valueOf(userDto.getPhone()));
         ValueCheckUtil.checkPersonalId(userDto.getPersonalId());
@@ -104,7 +104,7 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher> impl
     }
 
     @Override
-    public String forgetPassword(ForgetPasswordDto forgetPasswordDto) {
+    public String forgetPassword(ForgetPasswordDTO forgetPasswordDto) {
         Teacher teacher = lambdaQuery().eq(Teacher::getPhone, forgetPasswordDto.getPhone())
                 .eq(Teacher::getPersonalId, forgetPasswordDto.getPersonalId()).one();
         if (teacher == null) throw new MyException(StatusCodeEnum.USER_NOT_EXIST);
@@ -115,7 +115,7 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher> impl
     @Override
     public void loadScores(String title) {
         Long currentId = BaseContext.getCurrentId();
-        List<StudentScoreVo> allStudentsScores = scoreMapper.getAllStudentsScores(currentId, 0, 0, title, true);
+        List<StudentScoreVO> allStudentsScores = scoreMapper.getAllStudentsScores(currentId, 0, 0, title, true);
         ExcelUtil.writeStudentScoresToExcel(allStudentsScores, response);
     }
 

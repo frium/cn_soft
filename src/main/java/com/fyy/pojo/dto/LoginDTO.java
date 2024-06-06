@@ -14,7 +14,7 @@ import lombok.Data;
  */
 @Data
 @ApiModel("用户登录")
-public class LoginDto {
+public class LoginDTO {
     @NotEmpty(message = "密码不能为空")
     @Size(min = 8,max = 16,message = "密码的长度有误")
     @ApiModelProperty(value = "密码", required = true)

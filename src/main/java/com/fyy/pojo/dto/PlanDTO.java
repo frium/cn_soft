@@ -15,7 +15,7 @@ import java.util.List;
  */
 @Data
 @ApiModel("定制学习计划")
-public class PlanDto {
+public class PlanDTO {
     @NotEmpty(message ="选择定制的科目不能为空" )
     @ApiModelProperty(value = "需要定制的科目", required = true)
     List<String> subjects;

@@ -3,8 +3,8 @@ package com.fyy.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.fyy.pojo.dto.*;
 import com.fyy.pojo.entity.Student;
-import com.fyy.pojo.vo.PersonalInfoVo;
-import com.fyy.pojo.vo.StudyPlanVo;
+import com.fyy.pojo.vo.PersonalInfoVO;
+import com.fyy.pojo.vo.StudyPlanVO;
 
 import java.util.List;
 
@@ -14,12 +14,12 @@ import java.util.List;
  * @description
  */
 public interface StudentService extends IService<Student> {
-    Student getStudent(LoginDto student);
-    void addStudent(RegisterDto student);
+    Student getStudent(LoginDTO student);
+    void addStudent(RegisterDTO student);
     void addTeacher(String classCode);
-    PersonalInfoVo getPersonalInfo();
-    void modifyPersonalInfo(PersonalInfoDto personalInfoDto);
-    String forgetPassword(ForgetPasswordDto forgetPasswordDto);
-    String customizedPlan(PlanDto planDto);
-    List<StudyPlanVo> getHistoryPlan();
+    PersonalInfoVO getPersonalInfo();
+    void modifyPersonalInfo(PersonalInfoDTO personalInfoDto);
+    String forgetPassword(ForgetPasswordDTO forgetPasswordDto);
+    String customizedPlan(PlanDTO planDto);
+    List<StudyPlanVO> getHistoryPlan();
 }

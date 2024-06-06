@@ -11,7 +11,7 @@ import lombok.Data;
  */
 @Data
 @ApiModel("学习计划展示")
-public class StudyPlanVo {
+public class StudyPlanVO {
     @ApiModelProperty("历史计划")
     String plan;
     @ApiModelProperty("生成的时间")

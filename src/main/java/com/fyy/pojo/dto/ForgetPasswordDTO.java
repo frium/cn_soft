@@ -13,7 +13,7 @@ import lombok.Data;
  */
 @Data
 @ApiModel("忘记密码")
-public class ForgetPasswordDto {
+public class ForgetPasswordDTO {
 
     @NotEmpty(message = "手机号不能为空")
     @Pattern(regexp = "^.{11}$",message = "手机号长度有误")

@@ -11,7 +11,7 @@ import lombok.Data;
  */
 @Data
 @ApiModel("翻译语言展示")
-public class LanguageVo {
+public class LanguageVO {
     @ApiModelProperty(value = "语言名称",example = "英语")
     String language;
     @ApiModelProperty(value = "语言缩写",example = "cn")

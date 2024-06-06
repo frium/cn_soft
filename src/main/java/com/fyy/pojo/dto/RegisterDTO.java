@@ -13,7 +13,7 @@ import lombok.Data;
  * @description
  */
 @Data
-public class RegisterDto {
+public class RegisterDTO {
 
     @NotEmpty(message = "密码不能为空")
     @Size(min = 8, max = 16, message = "密码的长度有误")

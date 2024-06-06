@@ -1,20 +1,16 @@
 package com.fyy.pojo.dto;
 
-import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.Data;
-import org.jetbrains.annotations.NotNull;
-import org.springframework.web.multipart.MultipartFile;
 
 /**
  *
- * @date 2024-05-29 16:19:06
+ * @date 2024-05-22 16:22:27
  * @description
  */
 @Data
-@ApiModel("翻译")
-public class TranslateByFileDto {
+public class TranslateDTO {
     @NotEmpty(message = "输入语言不能为空")
     @ApiModelProperty(value = "输入语言",required = true)
     private String from;
@@ -23,7 +19,7 @@ public class TranslateByFileDto {
     @ApiModelProperty(value = "翻译出的语言",required = true)
     private String to;
 
-    @NotNull("上传文档不能为空")
-    @ApiModelProperty(value = "上传的文档",required = true)
-    private MultipartFile file;
+    @NotEmpty(message = "输入内容不能为空")
+    @ApiModelProperty(value = "输入的内容",required = true)
+    private String text;
 }

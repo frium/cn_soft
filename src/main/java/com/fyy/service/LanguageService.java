@@ -2,7 +2,7 @@ package com.fyy.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.fyy.pojo.entity.Language;
-import com.fyy.pojo.vo.LanguageVo;
+import com.fyy.pojo.vo.LanguageVO;
 
 import java.util.List;
 
@@ -12,5 +12,5 @@ import java.util.List;
  * @description
  */
 public interface LanguageService extends IService<Language> {
-    List<LanguageVo> getTranslationLanguage();
+    List<LanguageVO> getTranslationLanguage();
 }

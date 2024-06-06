@@ -1,9 +1,9 @@
 package com.fyy.controller;
 
 import com.fyy.common.R;
-import com.fyy.pojo.dto.PageDto;
-import com.fyy.pojo.dto.ScoreDto;
-import com.fyy.pojo.vo.StudentScoreVo;
+import com.fyy.pojo.dto.PageDTO;
+import com.fyy.pojo.dto.ScoreDTO;
+import com.fyy.pojo.vo.StudentScoreVO;
 import com.fyy.service.ScoreService;
 import com.fyy.service.TeacherService;
 import io.swagger.annotations.ApiOperation;
@@ -31,18 +31,18 @@ public class TeacherController {
 
     @ApiOperation("获取指定的考试中所有学生的成绩")
     @GetMapping("/getAllStudentsScores")
-    public R<List<StudentScoreVo>> getAllStudentsScores(@Valid @RequestBody PageDto pageDto) {
+    public R<List<StudentScoreVO>> getAllStudentsScores(@Valid @RequestBody PageDTO pageDto) {
         return R.success(scoreService.getAllStudentsScores(pageDto));
     }
     @ApiOperation("获取所有考试title")
     @PostMapping("/getAllScores")
-    public R<List<String>> getAllScores(@Valid @RequestBody PageDto pageDto){
+    public R<List<String>> getAllScores(@Valid @RequestBody PageDTO pageDto){
         return R.success(scoreService.getAllScores(pageDto));
     }
 
     @ApiOperation("通过学号添加学生成绩")
     @PostMapping("/addStudentScores")
-    public R<String> addStudentScores(@Valid  @RequestBody ScoreDto score) {
+    public R<String> addStudentScores(@Valid  @RequestBody ScoreDTO score) {
         scoreService.addStudentScore(score);
         return R.success();
     }

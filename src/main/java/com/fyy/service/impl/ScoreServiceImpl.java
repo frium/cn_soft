@@ -5,10 +5,10 @@ import com.fyy.common.MyException;
 import com.fyy.common.StatusCodeEnum;
 import com.fyy.context.BaseContext;
 import com.fyy.mapper.ScoreMapper;
-import com.fyy.pojo.dto.PageDto;
-import com.fyy.pojo.dto.ScoreDto;
+import com.fyy.pojo.dto.PageDTO;
+import com.fyy.pojo.dto.ScoreDTO;
 import com.fyy.pojo.entity.Score;
-import com.fyy.pojo.vo.StudentScoreVo;
+import com.fyy.pojo.vo.StudentScoreVO;
 import com.fyy.service.ScoreService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,10 +29,10 @@ public class ScoreServiceImpl extends ServiceImpl<ScoreMapper, Score> implements
     ScoreMapper scoreMapper;
 
     @Override
-    public List<StudentScoreVo> getAllStudentsScores(PageDto pageDto) {
+    public List<StudentScoreVO> getAllStudentsScores(PageDTO pageDto) {
         Long currentId = BaseContext.getCurrentId();
         int offset = (pageDto.getPage() - 1) * pageDto.getPageSize();
-        List<StudentScoreVo> allStudentsScores = scoreMapper.getAllStudentsScores(currentId, offset, pageDto.getPageSize(), pageDto.getTitle(),false);
+        List<StudentScoreVO> allStudentsScores = scoreMapper.getAllStudentsScores(currentId, offset, pageDto.getPageSize(), pageDto.getTitle(),false);
         if (allStudentsScores.isEmpty()) {
             throw new MyException(StatusCodeEnum.NOT_FOUND);
         }
@@ -40,7 +40,7 @@ public class ScoreServiceImpl extends ServiceImpl<ScoreMapper, Score> implements
     }
 
     @Override
-    public List<String> getAllScores(PageDto pageDto) {
+    public List<String> getAllScores(PageDTO pageDto) {
         int offset = (pageDto.getPage() - 1) * pageDto.getPageSize();
         List<String> allTitle = scoreMapper.getAllScores(offset, pageDto.getPageSize(),pageDto.getTitle());
         if (allTitle.isEmpty()) {
@@ -50,7 +50,7 @@ public class ScoreServiceImpl extends ServiceImpl<ScoreMapper, Score> implements
     }
 
     @Override
-    public void addStudentScore(ScoreDto scoreDto) {
+    public void addStudentScore(ScoreDTO scoreDto) {
         Score score = new Score();
         BeanUtils.copyProperties(scoreDto, score);
         LocalDateTime currentDateTime = LocalDateTime.now();
@@ -61,9 +61,9 @@ public class ScoreServiceImpl extends ServiceImpl<ScoreMapper, Score> implements
     }
 
     @Override
-    public List<StudentScoreVo> getStudentScores() {
+    public List<StudentScoreVO> getStudentScores() {
         Long id = BaseContext.getCurrentId();
-        List<StudentScoreVo> studentScores = scoreMapper.getStudentScores(id);
+        List<StudentScoreVO> studentScores = scoreMapper.getStudentScores(id);
         if (studentScores.isEmpty()) {
             throw new MyException(StatusCodeEnum.NOT_FOUND);
         }

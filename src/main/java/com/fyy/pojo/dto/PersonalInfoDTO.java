@@ -14,7 +14,7 @@ import lombok.Data;
  */
 @Data
 @ApiModel("个人主页信息")
-public class PersonalInfoDto {
+public class PersonalInfoDTO {
     @NotNull(message = "性别不能为空")
     @ApiModelProperty(value = "性别",required = true)
     private String sex;

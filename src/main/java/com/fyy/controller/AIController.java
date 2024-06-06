@@ -2,11 +2,11 @@ package com.fyy.controller;
 
 import com.fyy.common.MyException;
 import com.fyy.common.R;
-import com.fyy.pojo.dto.CompositionDto;
-import com.fyy.pojo.dto.TranslateByFileDto;
-import com.fyy.pojo.dto.TranslateDto;
+import com.fyy.pojo.dto.CompositionDTO;
+import com.fyy.pojo.dto.TranslateByFileDTO;
+import com.fyy.pojo.dto.TranslateDTO;
 import com.fyy.pojo.entity.SparkClient;
-import com.fyy.pojo.vo.LanguageVo;
+import com.fyy.pojo.vo.LanguageVO;
 import com.fyy.service.AIService;
 import com.fyy.service.LanguageService;
 import com.fyy.utils.AIUtil;
@@ -46,20 +46,20 @@ public class AIController {
 
     @ApiOperation("输入内容翻译")
     @PostMapping("/translate")
-    public R<String> translate(@NotNull @RequestBody TranslateDto translateDto) {
+    public R<String> translate(@NotNull @RequestBody TranslateDTO translateDto) {
         ITSUtil itsUtil = new ITSUtil(sparkClient);
         return R.success(itsUtil.AITranslate(translateDto.getFrom(), translateDto.getTo(), translateDto.getText()));
     }
 
     @ApiOperation("上传文件进行翻译")
     @PostMapping("/translateByFile")
-    public R<String> translateByFile(@NotNull @ModelAttribute TranslateByFileDto translateByFileDto) {
+    public R<String> translateByFile(@NotNull @ModelAttribute TranslateByFileDTO translateByFileDto) {
         return R.success(aiService.translateByFile(translateByFileDto));
     }
 
     @ApiOperation("AI写作")
     @PostMapping("/writeComposition")
-    public R<?> aiWriteComposition(@NotNull @RequestBody CompositionDto compositionDto) {
+    public R<?> aiWriteComposition(@NotNull @RequestBody CompositionDTO compositionDto) {
         return R.success(aiService.aiWriteComposition(compositionDto));
     }
 
@@ -76,7 +76,7 @@ public class AIController {
 
     @ApiOperation("获取翻译语言")
     @GetMapping("/getTranslationLanguage")
-    public R<List<LanguageVo>> getTranslationLanguage() {
+    public R<List<LanguageVO>> getTranslationLanguage() {
         return R.success(languageService.getTranslationLanguage());
     }
 

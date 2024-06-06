@@ -11,7 +11,7 @@ import lombok.Data;
  */
 @Data
 @ApiModel("展示个人信息")
-public class PersonalInfoVo {
+public class PersonalInfoVO {
     @ApiModelProperty("教师名称")
     private String teacherName;
     @ApiModelProperty("性别")

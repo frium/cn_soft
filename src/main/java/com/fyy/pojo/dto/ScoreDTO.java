@@ -15,7 +15,7 @@ import lombok.Data;
  */
 @Data
 @ApiModel("成绩")
-public class ScoreDto {
+public class ScoreDTO {
     @Pattern(regexp = "^.{12}$", message = "学号长度有误")
     @ApiModelProperty(value = "学号", required = true, dataType = "string")
     private String studentId;

@@ -2,7 +2,7 @@ package com.fyy.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.fyy.pojo.entity.Score;
-import com.fyy.pojo.vo.StudentScoreVo;
+import com.fyy.pojo.vo.StudentScoreVO;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -14,8 +14,8 @@ import java.util.List;
  */
 @Mapper
 public interface ScoreMapper extends BaseMapper<Score> {
-    List<StudentScoreVo> getAllStudentsScores(Long id, int offset, int pageSize, String title,boolean fetchAll);
-    List<StudentScoreVo> getStudentScores(Long id);
+    List<StudentScoreVO> getAllStudentsScores(Long id, int offset, int pageSize, String title, boolean fetchAll);
+    List<StudentScoreVO> getStudentScores(Long id);
     List<String> getAllScores(int offset, int pageSize,String title);
     List<Score> getStudentScoresLimit5(Long id, List<String> subjects);
 }

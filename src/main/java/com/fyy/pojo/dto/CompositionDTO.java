@@ -13,7 +13,7 @@ import lombok.Data;
  */
 @Data
 @ApiModel("ai文章书写")
-public class CompositionDto {
+public class CompositionDTO {
     @NotEmpty(message = "选择语言不能为空")
     @ApiModelProperty(value = "语言",required = true)
     String language;

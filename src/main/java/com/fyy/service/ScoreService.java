@@ -1,10 +1,10 @@
 package com.fyy.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.fyy.pojo.dto.PageDto;
-import com.fyy.pojo.dto.ScoreDto;
+import com.fyy.pojo.dto.PageDTO;
+import com.fyy.pojo.dto.ScoreDTO;
 import com.fyy.pojo.entity.Score;
-import com.fyy.pojo.vo.StudentScoreVo;
+import com.fyy.pojo.vo.StudentScoreVO;
 
 import java.util.List;
 
@@ -15,11 +15,11 @@ import java.util.List;
  */
 public interface ScoreService extends IService<Score> {
     //获取所有学生的分数
-    List<StudentScoreVo> getAllStudentsScores(PageDto pageDto);
+    List<StudentScoreVO> getAllStudentsScores(PageDTO pageDto);
     //获取所有考试的标题
-    List<String> getAllScores(PageDto pageDto);
+    List<String> getAllScores(PageDTO pageDto);
     //添加学生的分数
-    void addStudentScore(ScoreDto score);
+    void addStudentScore(ScoreDTO score);
     //获取学生成绩
-    List<StudentScoreVo> getStudentScores();
+    List<StudentScoreVO> getStudentScores();
 }

@@ -1,7 +1,7 @@
 package com.fyy.utils;
 
 import com.fyy.pojo.entity.Score;
-import com.fyy.pojo.vo.StudentScoreVo;
+import com.fyy.pojo.vo.StudentScoreVO;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -38,7 +38,7 @@ public class ExcelUtil {
                     cells.add(getCellValueAsString(cell));
                 }
                 String fileName = file.getOriginalFilename();
-                // 转换行数据为 StudentScoreVo 对象并添加到列表中
+                // 转换行数据为 StudentScoreVO 对象并添加到列表中
                 if (fileName != null) {
                     studentScores.add(Score.fromRowData(cells, fileName.substring(0,fileName.lastIndexOf("."))));
                 }else {
@@ -83,7 +83,7 @@ public class ExcelUtil {
         return cellValue;
     }
 
-    public static void writeStudentScoresToExcel(List<StudentScoreVo> studentScores, HttpServletResponse response) {
+    public static void writeStudentScoresToExcel(List<StudentScoreVO> studentScores, HttpServletResponse response) {
         try (Workbook workbook = new XSSFWorkbook()) {
             Sheet sheet = workbook.createSheet(studentScores.get(0).getTitle());
 
@@ -96,7 +96,7 @@ public class ExcelUtil {
             }
 
             int rowNum = 1;
-            for (StudentScoreVo studentScore : studentScores) {
+            for (StudentScoreVO studentScore : studentScores) {
                 Row row = sheet.createRow(rowNum++);
                 row.createCell(0).setCellValue(studentScore.getName());
                 row.createCell(1).setCellValue(studentScore.getStudentId());
