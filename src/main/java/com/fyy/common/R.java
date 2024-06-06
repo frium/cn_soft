@@ -2,6 +2,7 @@ package com.fyy.common;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
 
@@ -13,11 +14,15 @@ import java.io.Serializable;
 @Data
 public class R<T> implements Serializable {
     @ApiModelProperty(value = "响应码",required = true)
+    @NotNull("响应不为null")
     private Integer code;
     @ApiModelProperty(value = "错误信息",required = true)
+    @NotNull
     private String msg;
     @ApiModelProperty(value = "数据",dataType = "String")
     private T data;
+
+    public R() {}
 
     public static <T> R<T> success(T object) {
         R<T> result = new R<>();

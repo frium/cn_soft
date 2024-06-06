@@ -15,7 +15,7 @@ public class Teacher implements Serializable {
     private String name;
     private Long ID;
     private String password;
-    private Long phone;
+    private String phone;
     private String personalId;
     private String classCode;
 }

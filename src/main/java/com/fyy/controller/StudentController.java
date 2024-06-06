@@ -9,7 +9,9 @@ import com.fyy.pojo.vo.StudyPlanVo;
 import com.fyy.service.ScoreService;
 import com.fyy.service.StudentService;
 import io.swagger.annotations.ApiOperation;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,6 +21,7 @@ import java.util.List;
  * @date 2024-05-16 17:26:49
  * @description
  */
+@Validated
 @RestController
 @RequestMapping("/student")
 public class StudentController {
@@ -36,14 +39,14 @@ public class StudentController {
 
     @ApiOperation("添加老师")
     @PostMapping("/addTeacher")
-    public R<String> addTeacher(@RequestParam String classCode) {
+    public R<String> addTeacher(@Valid @RequestParam String classCode) {
         studentService.addTeacher(classCode);
         return R.success();
     }
 
     @ApiOperation("修改个人信息")
     @PutMapping("/modifyPersonalInfo")
-    public R<?> modifyPersonalInfo(@RequestBody PersonalInfoDto personalInfoDto) {
+    public R<?> modifyPersonalInfo(@Valid @RequestBody PersonalInfoDto personalInfoDto) {
         studentService.modifyPersonalInfo(personalInfoDto);
         return R.success();
     }
@@ -56,7 +59,7 @@ public class StudentController {
 
     @ApiOperation("定制学习计划")
     @PostMapping("/customizedPlan")
-    public R<?> customizedPlan(@RequestBody PlanDto planDto) {
+    public R<?> customizedPlan(@Valid @RequestBody PlanDto planDto) {
         return R.success(studentService.customizedPlan(planDto));
     }
 

@@ -90,7 +90,7 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
         Teacher t = teacherMapper.selectOne(new LambdaQueryWrapper<Teacher>()
                 .eq(Teacher::getPhone, userDto.getPhone())
                 .or().eq(Teacher::getPersonalId, userDto.getPersonalId()));
-        if (s != null && t != null) {
+        if (s != null || t != null) {
             throw new MyException(StatusCodeEnum.USER_EXIST);
         }
         Student student = new Student();

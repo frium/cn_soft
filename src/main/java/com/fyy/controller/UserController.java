@@ -12,9 +12,11 @@ import com.fyy.pojo.dto.RegisterDto;
 import com.fyy.service.StudentService;
 import com.fyy.service.TeacherService;
 import io.swagger.annotations.ApiOperation;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.ByteArrayOutputStream;
@@ -25,6 +27,7 @@ import java.util.concurrent.TimeUnit;
  * @date 2024-05-30 18:38:51
  * @description
  */
+@Validated
 @RestController
 @RequestMapping("/user")
 public class UserController {
@@ -46,35 +49,36 @@ public class UserController {
     @ApiOperation("获取验证码")
     @GetMapping("/getVerify")
     public R<String> getVerify() {
-        LineCaptcha lineCaptcha = CaptchaUtil.createLineCaptcha(width, height,codeCount,lineCount);
+        LineCaptcha lineCaptcha = CaptchaUtil.createLineCaptcha(width, height, codeCount, lineCount);
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         lineCaptcha.write(outputStream);
         byte[] bytes = outputStream.toByteArray();
         IoUtil.close(outputStream);
-        redisTemplate.opsForValue().set("verify", lineCaptcha.getCode(),1, TimeUnit.MINUTES);
+        redisTemplate.opsForValue().set("verify", lineCaptcha.getCode(), 1, TimeUnit.MINUTES);
         return R.success(Base64.encode(bytes));
     }
 
     @ApiOperation("登录")
     @PostMapping("/login")
-    public R<?> login(@RequestBody LoginDto loginDto) {
-        if (loginDto.getIsTeacher())  teacherService.getTeacher(loginDto);
+    public R<?> login(@Valid @RequestBody LoginDto loginDto) {
+        if (loginDto.getIsTeacher()) teacherService.getTeacher(loginDto);
         else studentService.getStudent(loginDto);
         return R.success();
     }
 
     @ApiOperation("注册")
     @PostMapping("/register")
-    public R<?> register(@RequestBody RegisterDto registerDto) {
+    public R<?> register(@Valid @RequestBody RegisterDto registerDto) {
         if (registerDto.getIsTeacher()) teacherService.addTeacher(registerDto);
         else studentService.addStudent(registerDto);
         return R.success();
     }
+
     @ApiOperation("忘记密码")
     @PostMapping("/forgetPassword")
-    public R<String> forgetPassword(@RequestBody ForgetPasswordDto forgetPasswordDto) {
+    public R<String> forgetPassword(@Valid @RequestBody ForgetPasswordDto forgetPasswordDto) {
         String password = studentService.forgetPassword(forgetPasswordDto);
-        if ( password.isEmpty()) return R.success(teacherService.forgetPassword(forgetPasswordDto));
+        if (password.isEmpty()) return R.success(teacherService.forgetPassword(forgetPasswordDto));
         else return R.success(password);
     }
 

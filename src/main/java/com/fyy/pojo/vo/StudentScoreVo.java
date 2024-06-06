@@ -17,7 +17,7 @@ public class StudentScoreVo {
     @ApiModelProperty("考试标题")
     private String title;
     @ApiModelProperty("学号")
-    private Long studentId;
+    private String studentId;
     @ApiModelProperty(value = "语文")
     private Float chinese;
     @ApiModelProperty(value = "数学")

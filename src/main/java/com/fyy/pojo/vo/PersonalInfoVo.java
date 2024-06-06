@@ -19,7 +19,7 @@ public class PersonalInfoVo {
     @ApiModelProperty("学生姓名")
     private String name;
     @ApiModelProperty("电话")
-    private Long phone;
+    private String phone;
     @ApiModelProperty("身份证")
     private String personalId;
     @ApiModelProperty("学号")

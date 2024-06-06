@@ -2,7 +2,9 @@ package com.fyy.pojo.dto;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.Data;
+import org.hibernate.validator.constraints.Length;
 
 import java.util.List;
 
@@ -14,10 +16,15 @@ import java.util.List;
 @Data
 @ApiModel("定制学习计划")
 public class PlanDto {
-    @ApiModelProperty(value = "需要定制的科目",required = true)
+    @NotEmpty(message ="选择定制的科目不能为空" )
+    @ApiModelProperty(value = "需要定制的科目", required = true)
     List<String> subjects;
-    @ApiModelProperty(value = "目标",required = true)
+
+    @Length(message = "输入的目标不能小于十五个字", min = 15)
+    @ApiModelProperty(value = "目标", required = true)
     String target;
-    @ApiModelProperty(value = "预计的学习时间",required = true)
+
+    @NotEmpty(message ="选择的学习时间不能为空" )
+    @ApiModelProperty(value = "预计的学习时间", required = true)
     String time;
 }

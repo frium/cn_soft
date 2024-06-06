@@ -90,7 +90,7 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher> impl
         Student s = studentMapper.selectOne(new LambdaQueryWrapper<Student>()
                 .eq(Student::getPhone, userDto.getPhone())
                 .or().eq(Student::getPersonalId, userDto.getPersonalId()));
-        if (t != null && s != null) {
+        if (t != null || s != null) {
             throw new MyException(StatusCodeEnum.USER_EXIST);
         }
         String uuid = UUID.randomUUID().toString().replace("-", "");
