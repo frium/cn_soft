@@ -14,12 +14,12 @@ import java.util.List;
  * @description
  */
 public interface StudentService extends IService<Student> {
-    Student getStudent(LoginDTO student);
+    void getStudent(LoginDTO student);
     void addStudent(RegisterDTO student);
     void addTeacher(String classCode);
     PersonalInfoVO getPersonalInfo();
     void modifyPersonalInfo(PersonalInfoDTO personalInfoDto);
-    String forgetPassword(ForgetPasswordDTO forgetPasswordDto);
+    boolean forgetPassword(ForgetPasswordDTO forgetPasswordDto);
     String customizedPlan(PlanDTO planDto);
     List<StudyPlanVO> getHistoryPlan();
 }

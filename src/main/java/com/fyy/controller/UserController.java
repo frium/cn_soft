@@ -4,7 +4,9 @@ import cn.hutool.captcha.CaptchaUtil;
 import cn.hutool.captcha.LineCaptcha;
 import cn.hutool.core.codec.Base64;
 import cn.hutool.core.io.IoUtil;
+import com.fyy.common.MyException;
 import com.fyy.common.R;
+import com.fyy.common.StatusCodeEnum;
 import com.fyy.context.BaseContext;
 import com.fyy.pojo.dto.ForgetPasswordDTO;
 import com.fyy.pojo.dto.LoginDTO;
@@ -76,10 +78,11 @@ public class UserController {
 
     @ApiOperation("忘记密码")
     @PostMapping("/forgetPassword")
-    public R<String> forgetPassword(@Valid @RequestBody ForgetPasswordDTO forgetPasswordDto) {
-        String password = studentService.forgetPassword(forgetPasswordDto);
-        if (password.isEmpty()) return R.success(teacherService.forgetPassword(forgetPasswordDto));
-        else return R.success(password);
+    public R<?> forgetPassword(@Valid @RequestBody ForgetPasswordDTO forgetPasswordDto) {
+        if (!studentService.forgetPassword(forgetPasswordDto) && !teacherService.forgetPassword(forgetPasswordDto)) {
+            throw new MyException(StatusCodeEnum.USER_NOT_EXIST);
+        }
+        return R.success();
     }
 
     @ApiOperation("登出")

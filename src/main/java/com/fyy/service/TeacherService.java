@@ -14,10 +14,10 @@ import org.springframework.web.multipart.MultipartFile;
  */
 public interface TeacherService extends IService<Teacher> {
     //老师账号登录
-    Teacher getTeacher(LoginDTO teacher);
+    void getTeacher(LoginDTO teacher);
     //老师注册
     void addTeacher(RegisterDTO teacher);
-    String forgetPassword(ForgetPasswordDTO forgetPasswordDto);
+    boolean forgetPassword(ForgetPasswordDTO forgetPasswordDto);
     void loadScores(String title);
     void uploadScores(MultipartFile excel);
 }

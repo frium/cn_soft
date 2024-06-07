@@ -60,11 +60,11 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
 
     /**
      * description:登录
+     *
      * @Param loginDTO: 登录dto
-     * @return: com.fyy.pojo.entity.Student
      */
     @Override
-    public Student getStudent(LoginDTO loginDTO) {
+    public void getStudent(LoginDTO loginDTO) {
         Student s;
         //用户名校验,判断是手机号登录还是身份证登录
         if (ValueCheckUtil.checkUsername(loginDTO.getUsername()).equals("phone")) {
@@ -80,7 +80,6 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
         } else {
             throw new MyException(StatusCodeEnum.LOGIN_FAIL);
         }
-        return s;
     }
 
     /**
@@ -118,17 +117,16 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
         save(student);
     }
 
-    /**
-     * description:忘记密码
-     * @Param forgetPasswordDTO: 忘记密码dto 
-     * @return: java.lang.String
-     */
+   /**
+    * description: 修改密码
+    * @Param forgetPasswordDTO: 修改密码dto
+    * @return: boolean 修改密码是否成功
+   */
     @Override
-    public String forgetPassword(ForgetPasswordDTO forgetPasswordDTO) {
-        Student student = lambdaQuery().eq(Student::getPhone, forgetPasswordDTO.getPhone())
-                .eq(Student::getPersonalId, forgetPasswordDTO.getPersonalId()).one();
-        if (student == null) throw new MyException(StatusCodeEnum.USER_NOT_EXIST);
-        else return student.getPassword();
+    public boolean forgetPassword(ForgetPasswordDTO forgetPasswordDTO) {
+        return lambdaUpdate().eq(Student::getPhone, forgetPasswordDTO.getPhone())
+                .eq(Student::getPersonalId, forgetPasswordDTO.getPersonalId())
+                .set(Student::getPassword, forgetPasswordDTO.getPassword()).update();
     }
 
 
