@@ -28,31 +28,48 @@ public class ScoreServiceImpl extends ServiceImpl<ScoreMapper, Score> implements
     @Autowired
     ScoreMapper scoreMapper;
 
+    /**
+     * description:利用title查看指定考试的所有学生的成绩(教师端)
+     * @Param pageDTO:分页模糊查询dto
+     * @return: java.util.List<com.fyy.pojo.vo.StudentScoreVO>
+     */
     @Override
-    public List<StudentScoreVO> getAllStudentsScores(PageDTO pageDto) {
+    public List<StudentScoreVO> getAllStudentsScores(PageDTO pageDTO) {
         Long currentId = BaseContext.getCurrentId();
-        int offset = (pageDto.getPage() - 1) * pageDto.getPageSize();
-        List<StudentScoreVO> allStudentsScores = scoreMapper.getAllStudentsScores(currentId, offset, pageDto.getPageSize(), pageDto.getTitle(),false);
+        int offset = (pageDTO.getPage() - 1) * pageDTO.getPageSize();
+        //分页查询当前考试的所有学生成绩
+        List<StudentScoreVO> allStudentsScores = scoreMapper.getAllStudentsScores(currentId, offset, pageDTO.getPageSize(), pageDTO.getTitle(), false);
         if (allStudentsScores.isEmpty()) {
             throw new MyException(StatusCodeEnum.NOT_FOUND);
         }
         return allStudentsScores;
     }
 
+    /**
+     * description:利用page,pageSize,title进行成绩标题的模糊查询(教师端)
+     * @Param pageDTO: 分页模糊查询dto
+     * @return: java.util.List<java.lang.String>
+     */
     @Override
-    public List<String> getAllScores(PageDTO pageDto) {
-        int offset = (pageDto.getPage() - 1) * pageDto.getPageSize();
-        List<String> allTitle = scoreMapper.getAllScores(offset, pageDto.getPageSize(),pageDto.getTitle());
+    public List<String> getAllScoresTitle(PageDTO pageDTO) {
+        int offset = (pageDTO.getPage() - 1) * pageDTO.getPageSize();
+        //分页查询所有考试的title
+        List<String> allTitle = scoreMapper.getAllScores(offset, pageDTO.getPageSize(), pageDTO.getTitle());
         if (allTitle.isEmpty()) {
             throw new MyException(StatusCodeEnum.NOT_FOUND);
         }
         return allTitle;
     }
 
+    /**
+     * description:添加学生的考试分数(教师端)
+     * @Param scoreDTO: 分数DTO
+     * @return: void
+     */
     @Override
-    public void addStudentScore(ScoreDTO scoreDto) {
+    public void addStudentScore(ScoreDTO scoreDTO) {
         Score score = new Score();
-        BeanUtils.copyProperties(scoreDto, score);
+        BeanUtils.copyProperties(scoreDTO, score);
         LocalDateTime currentDateTime = LocalDateTime.now();
         String formattedDateTime = currentDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         score.setCreateTime(formattedDateTime);
@@ -60,10 +77,17 @@ public class ScoreServiceImpl extends ServiceImpl<ScoreMapper, Score> implements
         save(score);
     }
 
+    /**
+     * description:分页模糊查询查看自己的成绩(学生端)
+     * @Param pageDTO: 分页模糊查询dto
+     * @return: java.util.List<com.fyy.pojo.vo.StudentScoreVO>
+     */
     @Override
-    public List<StudentScoreVO> getStudentScores() {
+    public List<StudentScoreVO> getMyAllScores(PageDTO pageDTO) {
         Long id = BaseContext.getCurrentId();
-        List<StudentScoreVO> studentScores = scoreMapper.getStudentScores(id);
+        int offset = (pageDTO.getPage() - 1) * pageDTO.getPageSize();
+        //分页模糊查询查看学生自己的成绩
+        List<StudentScoreVO> studentScores = scoreMapper.getMyAllScores(id, offset, pageDTO.getPageSize(),pageDTO.getTitle());
         if (studentScores.isEmpty()) {
             throw new MyException(StatusCodeEnum.NOT_FOUND);
         }

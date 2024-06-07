@@ -6,19 +6,21 @@
     <select id="getAllStudentsScores">
         select student.name, score.*
         from student
-                 join score on score.student_id = student.student_id
+        join score on score.student_id = student.student_id
         where student.teacher_id = #{id}
-          and score.title = #{title}
+        and score.title = #{title}
         order by score.create_time
         <if test="fetchAll==false">
             limit #{offset}, #{pageSize};
         </if>
 
     </select>
-    <select id="getStudentScores">
+    <select id="getMyAllScores">
         select *
         from score
-        where student_id = #{id};
+        where student_id = (select student_id from student where id = #{id})
+        and title like concat('%', #{title}, '%')
+        limit #{offset}, #{pageSize};
     </select>
     <select id="getStudentScoresLimit5">
         select
@@ -36,7 +38,8 @@
     </select>
     <select id="getAllScores">
         select distinct title
-        from score where title like  concat('%', #{title}, '%')
+        from score
+        where title like concat('%', #{title}, '%')
         order by title
         limit #{offset}, #{pageSize};
     </select>

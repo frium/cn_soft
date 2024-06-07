@@ -39,21 +39,21 @@ public class AIController {
 
     @ApiOperation("调用星火大模型")
     @PostMapping("/getAIAnswer")
-    public R<String> getAIAnswer(@NotNull @RequestBody String question) {
+    public R<?> getAIAnswer(@NotNull @RequestBody String question) {
         AIUtil aiUtil = new AIUtil(sparkClient);
         return R.success(aiUtil.getAIAnswer(question));
     }
 
     @ApiOperation("输入内容翻译")
     @PostMapping("/translate")
-    public R<String> translate(@NotNull @RequestBody TranslateDTO translateDto) {
+    public R<?> translate(@NotNull @RequestBody TranslateDTO translateDto) {
         ITSUtil itsUtil = new ITSUtil(sparkClient);
         return R.success(itsUtil.AITranslate(translateDto.getFrom(), translateDto.getTo(), translateDto.getText()));
     }
 
     @ApiOperation("上传文件进行翻译")
     @PostMapping("/translateByFile")
-    public R<String> translateByFile(@NotNull @ModelAttribute TranslateByFileDTO translateByFileDto) {
+    public R<?> translateByFile(@NotNull @ModelAttribute TranslateByFileDTO translateByFileDto) {
         return R.success(aiService.translateByFile(translateByFileDto));
     }
 
@@ -65,7 +65,7 @@ public class AIController {
 
     @ApiOperation("文本纠错")
     @PostMapping("/textCorrection")
-    public R<String> textCorrection(@NotNull String text) {
+    public R<?> textCorrection(@NotNull String text) {
         TextCorrectionUtil textCorrectionUtil = new TextCorrectionUtil(sparkClient);
         try {
             return R.success(textCorrectionUtil.getTextCorrection(text));

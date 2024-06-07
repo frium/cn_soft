@@ -1,6 +1,7 @@
 package com.fyy.controller;
 
 import com.fyy.common.R;
+import com.fyy.pojo.dto.PageDTO;
 import com.fyy.pojo.dto.PersonalInfoDTO;
 import com.fyy.pojo.dto.PlanDTO;
 import com.fyy.pojo.vo.PersonalInfoVO;
@@ -32,9 +33,9 @@ public class StudentController {
     private ScoreService scoreService;
 
     @ApiOperation("查询所有成绩")
-    @GetMapping("/getAllScores")
-    public R<List<StudentScoreVO>> getAllScores() {
-        return R.success(scoreService.getStudentScores());
+    @PostMapping("/getAllScores")
+    public R<List<StudentScoreVO>> getAllScores(@Valid @RequestBody PageDTO pageDTO) {
+        return R.success(scoreService.getMyAllScores(pageDTO));
     }
 
     @ApiOperation("添加老师")

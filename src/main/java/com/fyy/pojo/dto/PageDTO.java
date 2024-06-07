@@ -3,7 +3,6 @@ package com.fyy.pojo.dto;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotEmpty;
 import lombok.Data;
 
 /**
@@ -15,7 +14,7 @@ import lombok.Data;
 @ApiModel("成绩分页查询")
 public class PageDTO {
 
-    @NotEmpty(message = "最小从第一页展示")
+    @Min(value = 1,message = "最小从第一页展示")
     @ApiModelProperty(value = "页数",required = true)
     Integer page;
 

@@ -22,22 +22,33 @@ public class AIServiceImpl implements AIService {
     @Resource
     SparkClient sparkClient;
 
+    /**
+     * description: 上传文件进行翻译
+     * @Param translateByFileDTO: 翻译dto
+     * @return: java.lang.String
+    */
     @Override
-    public String translateByFile(TranslateByFileDTO translateByFileDto) {
+    public String translateByFile(TranslateByFileDTO translateByFileDTO) {
         try {
-            String file = FileUtil.convertMultipartFileToString(translateByFileDto.getFile());
+            String file = FileUtil.convertMultipartFileToString(translateByFileDTO.getFile());
             ITSUtil itsUtil = new ITSUtil(sparkClient);
-            return itsUtil.AITranslate(translateByFileDto.getFrom(), translateByFileDto.getTo(), file);
+            return itsUtil.AITranslate(translateByFileDTO.getFrom(), translateByFileDTO.getTo(), file);//调用ai进行翻译
         } catch (Exception e) {
             throw new MyException(StatusCodeEnum.VALUE_ERROR);
         }
     }
 
+    /**
+     * description:调用大模型进行写作
+     * @Param compositionDTO: 写作dto
+     * @return: java.lang.String
+    */
     @Override
-    public String aiWriteComposition(CompositionDTO compositionDto) {
-        String question="你现在是我的写作帮助老师,接下来你需要辅导我完成写作,这个是我的需求"+compositionDto.getRequirement()+"语言要求:"+compositionDto.getLanguage()+
+    public String aiWriteComposition(CompositionDTO compositionDTO) {
+        //添加前提需求
+        String question="你现在是我的写作帮助老师,接下来你需要辅导我完成写作,这个是我的需求"+compositionDTO.getRequirement()+"语言要求:"+compositionDTO.getLanguage()+
                 "不要有对你的行为的总结和祈使,只要给我生成一篇文章即可";
         AIUtil aiUtil=new AIUtil(sparkClient);
-       return aiUtil.getAIAnswer(question);
+       return aiUtil.getAIAnswer(question);//调用大模型生产文章
     }
 }

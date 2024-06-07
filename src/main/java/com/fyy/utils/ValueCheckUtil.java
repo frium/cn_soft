@@ -15,16 +15,7 @@ public class ValueCheckUtil {
         if (!Pattern.matches("^1[3456789]\\d{9}$", phone)) {
             throw new MyException(StatusCodeEnum.PHONE_ERROR);
         }
-
     }
-
-    public static boolean checkPassword(String password) {
-        if (password.length() > 7 && password.length() < 17) {
-            return true;
-        }
-        throw new MyException(StatusCodeEnum.PASSWORD_ERROR);
-    }
-
     public static void checkPersonalId(String personalId) {
         if (!Pattern.matches("^(\\d{15}$|^\\d{18}$|^\\d{17}(\\d|X|x))$", personalId)) {
             throw new MyException(StatusCodeEnum.PERSONAL_ID_ERROR);

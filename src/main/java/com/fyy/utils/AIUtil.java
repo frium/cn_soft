@@ -16,13 +16,13 @@ import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+
 @SuppressWarnings("all")
 public class AIUtil extends WebSocketListener {
     public static final String hostUrl = "https://spark-api.xf-yun.com/v3.5/chat";
     private static String APPID;
     private static String API_SECRET;
     private static String API_KEY;
-    public static List<RoleContent> historyList = new ArrayList<>(); // 对话历史存储集合
 
     public static String totalAnswer = ""; // 大模型的答案汇总
 
@@ -35,14 +35,14 @@ public class AIUtil extends WebSocketListener {
 
 
     // 构造函数
-    public AIUtil(String userId, Boolean wsCloseFlag) {
-        this.userId = userId;
-        this.wsCloseFlag = wsCloseFlag;
+    public AIUtil(Boolean wsCloseFlag) {
+        AIUtil.wsCloseFlag = wsCloseFlag;
     }
-    public AIUtil(SparkClient sparkClient){
-        this.API_KEY=sparkClient.apiKey;
-        this.APPID=sparkClient.appid;
-        this.API_SECRET=sparkClient.apiSecret;
+
+    public AIUtil(SparkClient sparkClient) {
+        this.API_KEY = sparkClient.apiKey;
+        this.APPID = sparkClient.appid;
+        this.API_SECRET = sparkClient.apiSecret;
     }
 
     public AIUtil() {
@@ -52,12 +52,10 @@ public class AIUtil extends WebSocketListener {
     public String getAIAnswer(String question) {
         String answer = null;
         try {
-            AIAnswer(question); // 调用方法发送问题并接收回答
+            AIAnswer(question);
             while (!wsCloseFlag) {
-                // 等待直到WebSocket连接关闭
                 Thread.sleep(100);
             }
-            // 将AI的回答作为返回值
             answer = totalAnswer;
         } catch (Exception e) {
             e.printStackTrace();
@@ -65,40 +63,18 @@ public class AIUtil extends WebSocketListener {
         return answer;
     }
 
-    // 主函数
     public void AIAnswer(String newQuestion) throws Exception {
-        // 个性化参数入口，如果是并发使用，可以在这里模拟
-            NewQuestion = newQuestion;
-            // 构建鉴权url
-            String authUrl = getAuthUrl(hostUrl, API_KEY, API_SECRET);
-            OkHttpClient client = new OkHttpClient.Builder().build();
-            String url = authUrl.toString().replace("http://", "ws://").replace("https://", "wss://");
-            Request request = new Request.Builder().url(url).build();
-            for (int i = 0; i < 1; i++) {
-                totalAnswer = "";
-                WebSocket webSocket = client.newWebSocket(request, new AIUtil(i + "", false));
-            }
-
+        NewQuestion = newQuestion;
+        // 构建鉴权url
+        String authUrl = getAuthUrl(hostUrl, API_KEY, API_SECRET);
+        OkHttpClient client = new OkHttpClient.Builder().build();
+        String url = authUrl.replace("http://", "ws://").replace("https://", "wss://");
+        Request request = new Request.Builder().url(url).build();
+        totalAnswer = "";
+        WebSocket webSocket = client.newWebSocket(request, new AIUtil(false));
     }
 
-    public  boolean canAddHistory() {  // 由于历史记录最大上线1.2W左右，需要判断是能能加入历史
-        int history_length = 0;
-        for (RoleContent temp : historyList) {
-            history_length = history_length + temp.content.length();
-        }
-        if (history_length > 12000) {
-            historyList.remove(0);
-            historyList.remove(1);
-            historyList.remove(2);
-            historyList.remove(3);
-            historyList.remove(4);
-            return false;
-        } else {
-            return true;
-        }
-    }
 
-    // 线程来发送音频与参数
     class MyThread extends Thread {
         private WebSocket webSocket;
 
@@ -125,33 +101,18 @@ public class AIUtil extends WebSocketListener {
                 JSONObject message = new JSONObject();
                 JSONArray text = new JSONArray();
 
-                // 历史问题获取
-                if (historyList.size() > 0) {
-                    for (RoleContent tempRoleContent : historyList) {
-                        text.add(JSON.toJSON(tempRoleContent));
-                    }
-                }
-
-                // 最新问题
                 RoleContent roleContent = new RoleContent();
                 roleContent.role = "user";
                 roleContent.content = NewQuestion;
                 text.add(JSON.toJSON(roleContent));
-                historyList.add(roleContent);
-
-
                 message.put("text", text);
                 payload.put("message", message);
-
-
                 requestJson.put("header", header);
                 requestJson.put("parameter", parameter);
                 requestJson.put("payload", payload);
-                // System.err.println(requestJson); // 可以打印看每次的传参明细
                 webSocket.send(requestJson.toString());
                 // 等待服务端返回完毕后关闭
                 while (true) {
-                    // System.err.println(wsCloseFlag + "---");
                     Thread.sleep(200);
                     if (wsCloseFlag) {
                         break;
@@ -176,26 +137,13 @@ public class AIUtil extends WebSocketListener {
         JsonParse myJsonParse = gson.fromJson(text, JsonParse.class);
         if (myJsonParse.header.code != 0) {
             webSocket.close(1000, "");
-            throw new MyException("本次请求的sid为：" + myJsonParse.header.sid,myJsonParse.header.code);
+            throw new MyException("本次请求的sid为：" + myJsonParse.header.sid, myJsonParse.header.code);
         }
         List<Text> textList = myJsonParse.payload.choices.text;
         for (Text temp : textList) {
             totalAnswer = totalAnswer + temp.content;
         }
         if (myJsonParse.header.status == 2) {
-           // // 可以关闭连接，释放资源
-           // if (canAddHistory()) {
-           //     RoleContent roleContent = new RoleContent();
-           //     roleContent.setRole("assistant");
-           //     roleContent.setContent(totalAnswer);
-           //     historyList.add(roleContent);
-           // } else {
-           //     historyList.remove(0);
-           //     RoleContent roleContent = new RoleContent();
-           //     roleContent.setRole("assistant");
-           //     roleContent.setContent(totalAnswer);
-           //     historyList.add(roleContent);
-           // }
             wsCloseFlag = true;
         }
     }

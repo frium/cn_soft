@@ -17,9 +17,9 @@ public interface ScoreService extends IService<Score> {
     //获取所有学生的分数
     List<StudentScoreVO> getAllStudentsScores(PageDTO pageDto);
     //获取所有考试的标题
-    List<String> getAllScores(PageDTO pageDto);
+    List<String> getAllScoresTitle(PageDTO pageDto);
     //添加学生的分数
     void addStudentScore(ScoreDTO score);
     //获取学生成绩
-    List<StudentScoreVO> getStudentScores();
+    List<StudentScoreVO> getMyAllScores(PageDTO pageDTO);
 }

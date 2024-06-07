@@ -30,7 +30,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  *
@@ -52,21 +55,25 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher> impl
     @Autowired
     HttpSession httpSession;
     @Autowired
-    RedisTemplate<Object,Object> redisTemplate;
+    RedisTemplate<Object, Object> redisTemplate;
     @Value("${jwt.key}")
     String key;
     @Value("${jwt.ttl}")
     long ttl;
 
+    /**
+     * description:登录
+     * @Param loginDTO: 登录dto
+     * @return: com.fyy.pojo.entity.Teacher
+     */
     @Override
-    public Teacher getTeacher(LoginDTO loginDto) {
-        Teacher t = null;
-        if (ValueCheckUtil.checkPassword(loginDto.getPassword())) {
-            if (ValueCheckUtil.checkUsername(loginDto.getUsername()).equals("phone")) {
-                t = lambdaQuery().eq(Teacher::getPhone, loginDto.getUsername()).eq(Teacher::getPassword, loginDto.getPassword()).one();
-            } else {
-                t = lambdaQuery().eq(Teacher::getPersonalId, loginDto.getUsername()).eq(Teacher::getPassword, loginDto.getPassword()).one();
-            }
+    public Teacher getTeacher(LoginDTO loginDTO) {
+        Teacher t;
+        //用户名校验,判断是手机号登录还是身份证登录
+        if (ValueCheckUtil.checkUsername(loginDTO.getUsername()).equals("phone")) {
+            t = lambdaQuery().eq(Teacher::getPhone, loginDTO.getUsername()).eq(Teacher::getPassword, loginDTO.getPassword()).one();
+        } else {
+            t = lambdaQuery().eq(Teacher::getPersonalId, loginDTO.getUsername()).eq(Teacher::getPassword, loginDTO.getPassword()).one();
         }
         if (t != null) {
             Map<String, Object> claims = new HashMap<>();
@@ -79,17 +86,22 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher> impl
         return t;
     }
 
+    /**
+     * description:注册
+     * @Param registerDTO: 注册dto
+     * @return: void
+     */
     @Override
-    public void addTeacher(RegisterDTO userDto) {
-        if(!userDto.getVerify().equals(redisTemplate.opsForValue().get("verify"))) throw new MyException(StatusCodeEnum.ERROR_VERIFY);
-        ValueCheckUtil.checkPhone(String.valueOf(userDto.getPhone()));
-        ValueCheckUtil.checkPersonalId(userDto.getPersonalId());
-        ValueCheckUtil.checkPassword(userDto.getPassword());
+    public void addTeacher(RegisterDTO registerDTO) {
+        if (!registerDTO.getVerify().equals(redisTemplate.opsForValue().get("verify")))
+            throw new MyException(StatusCodeEnum.ERROR_VERIFY);
+        ValueCheckUtil.checkPhone(String.valueOf(registerDTO.getPhone()));
+        ValueCheckUtil.checkPersonalId(registerDTO.getPersonalId());
         //查询数据库中是否有相同的身份证或者电话,有的话直接pass
-        Teacher t = lambdaQuery().eq(Teacher::getPhone, userDto.getPhone()).or().eq(Teacher::getPersonalId, userDto.getPersonalId()).one();
+        Teacher t = lambdaQuery().eq(Teacher::getPhone, registerDTO.getPhone()).or().eq(Teacher::getPersonalId, registerDTO.getPersonalId()).one();
         Student s = studentMapper.selectOne(new LambdaQueryWrapper<Student>()
-                .eq(Student::getPhone, userDto.getPhone())
-                .or().eq(Student::getPersonalId, userDto.getPersonalId()));
+                .eq(Student::getPhone, registerDTO.getPhone())
+                .or().eq(Student::getPersonalId, registerDTO.getPersonalId()));
         if (t != null || s != null) {
             throw new MyException(StatusCodeEnum.USER_EXIST);
         }
@@ -97,21 +109,31 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher> impl
         String classCode = uuid.substring(0, 6);
         Teacher teacher = new Teacher();
         teacher.setClassCode(classCode);
-        teacher.setName("教师"+classCode);
+        teacher.setName("教师" + classCode);
         teacher.setSex("男");
-        BeanUtils.copyProperties(userDto, teacher);
+        BeanUtils.copyProperties(registerDTO, teacher);
         save(teacher);
     }
 
+    /**
+     * description:忘记密码
+     * @Param forgetPasswordDTO: 忘记密码dto
+     * @return: java.lang.String
+     */
     @Override
-    public String forgetPassword(ForgetPasswordDTO forgetPasswordDto) {
-        Teacher teacher = lambdaQuery().eq(Teacher::getPhone, forgetPasswordDto.getPhone())
-                .eq(Teacher::getPersonalId, forgetPasswordDto.getPersonalId()).one();
+    public String forgetPassword(ForgetPasswordDTO forgetPasswordDTO) {
+        Teacher teacher = lambdaQuery().eq(Teacher::getPhone, forgetPasswordDTO.getPhone())
+                .eq(Teacher::getPersonalId, forgetPasswordDTO.getPersonalId()).one();
         if (teacher == null) throw new MyException(StatusCodeEnum.USER_NOT_EXIST);
         else return teacher.getPassword();
 
     }
 
+    /**
+     * description:导出成绩表
+     * @Param title: 成绩的标题
+     * @return: void
+     */
     @Override
     public void loadScores(String title) {
         Long currentId = BaseContext.getCurrentId();
@@ -119,6 +141,11 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher> impl
         ExcelUtil.writeStudentScoresToExcel(allStudentsScores, response);
     }
 
+    /**
+     * description:通过excel导入学生成绩
+     * @Param excel: excel表
+     * @return: void
+     */
     @Override
     public void uploadScores(MultipartFile excel) {
         try {

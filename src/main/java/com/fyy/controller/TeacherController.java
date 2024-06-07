@@ -28,16 +28,15 @@ public class TeacherController {
     ScoreService scoreService;
     @Autowired
     TeacherService teacherService;
-
     @ApiOperation("获取指定的考试中所有学生的成绩")
     @GetMapping("/getAllStudentsScores")
     public R<List<StudentScoreVO>> getAllStudentsScores(@Valid @RequestBody PageDTO pageDto) {
         return R.success(scoreService.getAllStudentsScores(pageDto));
     }
     @ApiOperation("获取所有考试title")
-    @PostMapping("/getAllScores")
-    public R<List<String>> getAllScores(@Valid @RequestBody PageDTO pageDto){
-        return R.success(scoreService.getAllScores(pageDto));
+    @PostMapping("/getAllScoresTitle")
+    public R<List<String>> getAllScoresTitle(@Valid @RequestBody PageDTO pageDto){
+        return R.success(scoreService.getAllScoresTitle(pageDto));
     }
 
     @ApiOperation("通过学号添加学生成绩")

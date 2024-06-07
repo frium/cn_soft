@@ -23,6 +23,11 @@ public class LanguageServiceImpl extends ServiceImpl<LanguageMapper, Language> i
 
     @Autowired
     RedisTemplate<Object,Object> redisTemplate;
+
+    /**
+     * description:获取翻译语言的中文名和缩写
+     * @return: java.util.List<com.fyy.pojo.vo.LanguageVO>
+    */
     @Override
     public List<LanguageVO> getTranslationLanguage() {
         String key = "languageVOList";
@@ -37,8 +42,7 @@ public class LanguageServiceImpl extends ServiceImpl<LanguageMapper, Language> i
                 BeanUtils.copyProperties(language, languageVo);
                 languageVOList.add(languageVo);
             }
-            // 存入 Redis 以便下次查找
-            redisTemplate.opsForValue().set(key, languageVOList);
+            redisTemplate.opsForValue().set(key, languageVOList); // 存入 Redis 以便下次查找
         }
         return languageVOList;
     }
