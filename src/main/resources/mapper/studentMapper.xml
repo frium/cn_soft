@@ -14,10 +14,12 @@
         from student ji;
     </select>
     <insert id="addStudyPlan">
-        insert into study_plan
-        set student_id=(select student_id from student where id = #{id}),
-            plan=#{plan},
-            create_time=#{time}
+        insert into study_plan( student_id, plan, status, title, create_time)
+        values ((select student_id from student where id = #{id}),
+                #{studyPlanVO.plan},
+                #{studyPlanVO.status},
+                #{studyPlanVO.title},
+                #{studyPlanVO.createTime});
     </insert>
     <select id="getHistoryPlan">
         select * from study_plan where student_id=(select student_id from student where student.id=#{id})

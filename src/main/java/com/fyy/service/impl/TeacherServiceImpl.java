@@ -22,6 +22,7 @@ import com.fyy.utils.JwtUtil;
 import com.fyy.utils.ValueCheckUtil;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,6 +31,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,6 +42,7 @@ import java.util.UUID;
  * @date 2024-05-15 22:14:13
  * @description
  */
+@Slf4j
 @Service
 public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher> implements TeacherService {
     @Autowired
@@ -68,6 +71,7 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher> impl
      */
     @Override
     public void getTeacher(LoginDTO loginDTO) {
+        log.info("教师用户 {} 登录 {}", loginDTO.getUsername(), LocalDateTime.now());
         Teacher t;
         //用户名校验,判断是手机号登录还是身份证登录
         if (ValueCheckUtil.checkUsername(loginDTO.getUsername()).equals("phone")) {
@@ -77,7 +81,7 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher> impl
         }
         if (t != null) {
             Map<String, Object> claims = new HashMap<>();
-            claims.put("teacherId", t.getID());
+            claims.put("teacherId", t.getId());
             response.setHeader("Authorization", JwtUtil.createToken(key, ttl, claims));
             httpSession.setAttribute("userRole", "teacher");
         } else {
@@ -134,6 +138,7 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher> impl
     @Override
     public void loadScores(String title) {
         Long currentId = BaseContext.getCurrentId();
+        log.info("教师用户 {} 下载成绩表 {} {}", currentId, title, LocalDateTime.now());
         List<StudentScoreVO> allStudentsScores = scoreMapper.getAllStudentsScores(currentId, 0, 0, title, true);
         ExcelUtil.writeStudentScoresToExcel(allStudentsScores, response);
     }
@@ -145,6 +150,8 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher> impl
      */
     @Override
     public void uploadScores(MultipartFile excel) {
+        Long currentId = BaseContext.getCurrentId();
+        log.info("教师用户 {} 上传成绩表 {} {}", currentId, excel, LocalDateTime.now());
         try {
             List<Score> studentScoreVos = ExcelUtil.parseExcel(excel);
             scoreService.saveBatch(studentScoreVos);

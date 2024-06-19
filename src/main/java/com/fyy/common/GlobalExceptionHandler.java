@@ -7,10 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ControllerAdvice;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -20,14 +17,13 @@ import java.util.Map;
  * @date 2024-05-21 20:37:35
  * @description
  */
-@ControllerAdvice
-@ResponseBody
+@RestControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {
     @Autowired
     private HttpServletResponse response;
 
-    @ExceptionHandler
+    @ExceptionHandler(MyException.class)
     public R<?> myExceptionHandler(MyException e) {
         log.info("业务异常信息：{}", e.getMessage());
         if (e.getStatusCodeEnum() != null) {
@@ -39,7 +35,7 @@ public class GlobalExceptionHandler {
     }
 
 
-    @ExceptionHandler
+    @ExceptionHandler(HttpMediaTypeNotSupportedException.class  )
     public R<?> formatExceptionHandler(HttpMediaTypeNotSupportedException e) {
         log.error("参数格式错误, {}", e.getMessage());
         response.setStatus(StatusCodeEnum.VALUE_ERROR.getHttpStatusCode());

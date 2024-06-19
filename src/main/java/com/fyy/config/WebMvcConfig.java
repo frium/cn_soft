@@ -1,5 +1,6 @@
 package com.fyy.config;
 
+import com.fyy.interceptor.IpInterceptor;
 import com.fyy.interceptor.RoleInterceptor;
 import com.fyy.interceptor.TokenInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,15 +20,21 @@ public class WebMvcConfig implements WebMvcConfigurer {
     private TokenInterceptor tokenInterceptor;
     @Autowired
     private RoleInterceptor roleInterceptor;
+    @Autowired
+    private IpInterceptor ipInterceptor;
+
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(ipInterceptor)
+                .addPathPatterns("/**")//添加拦截路径
+                .order(Ordered.HIGHEST_PRECEDENCE);
         registry.addInterceptor(tokenInterceptor)
                 .addPathPatterns("/**")//添加拦截路径
-                .excludePathPatterns("/error","/*/login","/*/register","/*/getVerify","/*/forgetPassword")
-                .order(Ordered.HIGHEST_PRECEDENCE);
+                .excludePathPatterns("/error", "/*/login", "/*/register", "/*/getVerify", "/*/forgetPassword")
+                .order(100);
         registry.addInterceptor(roleInterceptor)
                 .addPathPatterns("/**")
-                .excludePathPatterns("/*/login","/*/register","/*/getVerify","/*/forgetPassword")
+                .excludePathPatterns("/*/login", "/*/register", "/*/getVerify", "/*/forgetPassword")
                 .order(10);
     }
 }

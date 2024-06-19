@@ -15,7 +15,7 @@ import com.fyy.utils.OcrUtil;
 import com.fyy.utils.TextCorrectionUtil;
 import io.swagger.annotations.ApiOperation;
 import jakarta.annotation.Resource;
-import org.jetbrains.annotations.NotNull;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -39,33 +39,33 @@ public class AIController {
 
     @ApiOperation("调用星火大模型")
     @PostMapping("/getAIAnswer")
-    public R<?> getAIAnswer(@NotNull @RequestBody String question) {
+    public R<?> getAIAnswer(@Valid @RequestBody String question) {
         AIUtil aiUtil = new AIUtil(sparkClient);
         return R.success(aiUtil.getAIAnswer(question));
     }
 
     @ApiOperation("输入内容翻译")
     @PostMapping("/translate")
-    public R<?> translate(@NotNull @RequestBody TranslateDTO translateDto) {
+    public R<?> translate(@Valid @RequestBody TranslateDTO translateDto) {
         ITSUtil itsUtil = new ITSUtil(sparkClient);
         return R.success(itsUtil.AITranslate(translateDto.getFrom(), translateDto.getTo(), translateDto.getText()));
     }
 
     @ApiOperation("上传文件进行翻译")
     @PostMapping("/translateByFile")
-    public R<?> translateByFile(@NotNull @ModelAttribute TranslateByFileDTO translateByFileDto) {
+    public R<?> translateByFile(@Valid @ModelAttribute TranslateByFileDTO translateByFileDto) {
         return R.success(aiService.translateByFile(translateByFileDto));
     }
 
     @ApiOperation("AI写作")
     @PostMapping("/writeComposition")
-    public R<?> aiWriteComposition(@NotNull @RequestBody CompositionDTO compositionDto) {
+    public R<?> aiWriteComposition(@Valid @RequestBody CompositionDTO compositionDto) {
         return R.success(aiService.aiWriteComposition(compositionDto));
     }
 
     @ApiOperation("文本纠错")
     @PostMapping("/textCorrection")
-    public R<?> textCorrection(@NotNull String text) {
+    public R<?> textCorrection(@Valid String text) {
         TextCorrectionUtil textCorrectionUtil = new TextCorrectionUtil(sparkClient);
         try {
             return R.success(textCorrectionUtil.getTextCorrection(text));
@@ -82,7 +82,7 @@ public class AIController {
 
     @ApiOperation("图片答题")
     @PostMapping("/imageAnswer")
-    public R<?> imageAnswer(@NotNull @RequestParam("image") MultipartFile image) throws Exception {
+    public R<?> imageAnswer(@Valid @RequestParam("image") MultipartFile image) throws Exception {
         OcrUtil ocrUtil = new OcrUtil(sparkClient);
         AIUtil aiUtil = new AIUtil(sparkClient);
         return R.success(aiUtil.getAIAnswer(ocrUtil.imageRecognition(image)));

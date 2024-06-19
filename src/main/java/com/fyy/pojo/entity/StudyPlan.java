@@ -1,5 +1,6 @@
 package com.fyy.pojo.entity;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 /**
@@ -13,4 +14,6 @@ public class StudyPlan {
     String studentId;
     String plan;
     String createTime;
+    String title;
+    boolean status;
 }

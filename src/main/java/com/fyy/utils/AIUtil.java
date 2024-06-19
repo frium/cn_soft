@@ -24,7 +24,7 @@ public class AIUtil extends WebSocketListener {
     private static String API_SECRET;
     private static String API_KEY;
 
-    public static String totalAnswer = ""; // 大模型的答案汇总
+    public static String totalAnswer =""; // 大模型的答案汇总
 
     public static String NewQuestion = "";
 

@@ -20,6 +20,6 @@ public interface StudentService extends IService<Student> {
     PersonalInfoVO getPersonalInfo();
     void modifyPersonalInfo(PersonalInfoDTO personalInfoDto);
     boolean forgetPassword(ForgetPasswordDTO forgetPasswordDto);
-    String customizedPlan(PlanDTO planDto);
+    StudyPlanVO customizedPlan(PlanDTO planDto);
     List<StudyPlanVO> getHistoryPlan();
 }

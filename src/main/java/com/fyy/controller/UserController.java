@@ -1,9 +1,5 @@
 package com.fyy.controller;
 
-import cn.hutool.captcha.CaptchaUtil;
-import cn.hutool.captcha.LineCaptcha;
-import cn.hutool.core.codec.Base64;
-import cn.hutool.core.io.IoUtil;
 import com.fyy.common.MyException;
 import com.fyy.common.R;
 import com.fyy.common.StatusCodeEnum;
@@ -13,16 +9,13 @@ import com.fyy.pojo.dto.LoginDTO;
 import com.fyy.pojo.dto.RegisterDTO;
 import com.fyy.service.StudentService;
 import com.fyy.service.TeacherService;
+import com.fyy.utils.VerifyUtil;
 import io.swagger.annotations.ApiOperation;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import java.io.ByteArrayOutputStream;
-import java.util.concurrent.TimeUnit;
 
 /**
  * 登录注册界面
@@ -39,25 +32,13 @@ public class UserController {
     StudentService studentService;
     @Autowired
     RedisTemplate<Object, Object> redisTemplate;
-    @Value("${verify.width}")
-    Integer width;
-    @Value("${verify.height}")
-    Integer height;
-    @Value("${verify.codeCount}")
-    Integer codeCount;
-    @Value("${verify.lineCount}")
-    Integer lineCount;
+    @Autowired
+    VerifyUtil verifyUtil;
 
     @ApiOperation("获取验证码")
     @GetMapping("/getVerify")
     public R<String> getVerify() {
-        LineCaptcha lineCaptcha = CaptchaUtil.createLineCaptcha(width, height, codeCount, lineCount);
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        lineCaptcha.write(outputStream);
-        byte[] bytes = outputStream.toByteArray();
-        IoUtil.close(outputStream);
-        redisTemplate.opsForValue().set("verify", lineCaptcha.getCode(), 1, TimeUnit.MINUTES);
-        return R.success(Base64.encode(bytes));
+        return R.success(verifyUtil.getVerify());
     }
 
     @ApiOperation("登录")

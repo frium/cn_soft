@@ -9,10 +9,7 @@ import com.fyy.mapper.ScoreMapper;
 import com.fyy.mapper.StudentMapper;
 import com.fyy.mapper.TeacherMapper;
 import com.fyy.pojo.dto.*;
-import com.fyy.pojo.entity.Score;
-import com.fyy.pojo.entity.SparkClient;
-import com.fyy.pojo.entity.Student;
-import com.fyy.pojo.entity.Teacher;
+import com.fyy.pojo.entity.*;
 import com.fyy.pojo.vo.PersonalInfoVO;
 import com.fyy.pojo.vo.StudyPlanVO;
 import com.fyy.service.StudentService;
@@ -21,6 +18,7 @@ import com.fyy.utils.JwtUtil;
 import com.fyy.utils.ValueCheckUtil;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -37,6 +35,7 @@ import java.util.*;
  * @date 2024-05-16 17:32:08
  * @description
  */
+@Slf4j
 @Service
 public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> implements StudentService {
     @Autowired
@@ -65,6 +64,7 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
      */
     @Override
     public void getStudent(LoginDTO loginDTO) {
+        log.info("学生用户 {} 登录 {}", loginDTO.getUsername(), LocalDateTime.now());
         Student s;
         //用户名校验,判断是手机号登录还是身份证登录
         if (ValueCheckUtil.checkUsername(loginDTO.getUsername()).equals("phone")) {
@@ -74,7 +74,7 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
         }
         if (s != null) {
             Map<String, Object> claims = new HashMap<>();
-            claims.put("studentId", s.getID());
+            claims.put("studentId", s.getId());
             response.setHeader("Authorization", JwtUtil.createToken(key, ttl, claims));//设置token到请求头中
             httpSession.setAttribute("userRole", "student");
         } else {
@@ -138,6 +138,7 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
     @Override
     public void addTeacher(String classCode) {
         Long currentId = BaseContext.getCurrentId();
+        log.info("学生用户 {} 添加老师 {} {}", currentId, classCode,LocalDateTime.now());
         //先在数据库中查找看classCode是否正确
         LambdaQueryWrapper<Teacher> lambdaQueryWrapper = new LambdaQueryWrapper<>();
         lambdaQueryWrapper.eq(Teacher::getClassCode, classCode);
@@ -155,10 +156,11 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
     @Override
     public PersonalInfoVO getPersonalInfo() {
         Long currentId = BaseContext.getCurrentId();
-        Student student = studentMapper.selectOne(new LambdaQueryWrapper<Student>().eq(Student::getID, currentId));
+        log.info("学生用户 {} 获取个人信息  {}", currentId,LocalDateTime.now());
+        Student student = studentMapper.selectOne(new LambdaQueryWrapper<Student>().eq(Student::getId, currentId));
         PersonalInfoVO personalInfoVo = new PersonalInfoVO();
         BeanUtils.copyProperties(student, personalInfoVo);
-        Teacher teacher = teacherMapper.selectOne(new LambdaQueryWrapper<Teacher>().eq(Teacher::getID, student.getTeacherId()));
+        Teacher teacher = teacherMapper.selectOne(new LambdaQueryWrapper<Teacher>().eq(Teacher::getId, student.getTeacherId()));
         if (teacher != null) {
             personalInfoVo.setTeacherName(teacher.getName());
         }
@@ -172,6 +174,8 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
      */
     @Override
     public void modifyPersonalInfo(PersonalInfoDTO personalInfoDTO) {
+        Long currentId = BaseContext.getCurrentId();
+        log.info("学生用户 {} 修改个人信息 {}", currentId,LocalDateTime.now());
         ValueCheckUtil.checkPhone(String.valueOf(personalInfoDTO.getPhone()));
         ValueCheckUtil.checkPersonalId(personalInfoDTO.getPersonalId());
         //查询数据库中是否有相同的身份证或者电话,有的话直接pass
@@ -182,10 +186,9 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
         if (s != null && t != null) {
             throw new MyException(StatusCodeEnum.USER_EXIST);
         }
-        Long currentId = BaseContext.getCurrentId();
         Student student = new Student();
         BeanUtils.copyProperties(personalInfoDTO, student);
-        student.setID(currentId);
+        student.setId(currentId);
         if (studentMapper.updateById(student) == 0) {
             throw new MyException(StatusCodeEnum.FAIL);
         }
@@ -198,9 +201,10 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
      * @return: java.lang.String
      */
     @Override
-    public String customizedPlan(PlanDTO planDTO) {
+    public StudyPlanVO customizedPlan(PlanDTO planDTO) {
         //获取当前学生的近五次成绩
         Long currentId = BaseContext.getCurrentId();
+        log.info("学生用户 {} 定制学习计划 {}", currentId,LocalDateTime.now());
         String key = "historyPlan" + currentId;
         List<Score> scores = scoreMapper.getStudentScoresLimit5(currentId, planDTO.getSubjects());//获取需要定制计划的科目的成绩
         StringBuilder question = new StringBuilder("你是我的班主任,接下来我需要你帮助我去定制一个学习计划,你只需要考虑" + planDTO.getSubjects() +
@@ -208,8 +212,10 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
         for (Score score : scores) {
             question.append(score);
         }
-        question.append("我的目标是").append(planDTO.getTarget()).append("我预定的学习时间是").append(planDTO.getTime())
-                .append("不要有总结之类的话,直接给我一个计划即可,但是尽可能的详细一点,并以班主任和学生交谈的口吻进行温柔的回答");
+        question.append("这是一些详细的辅助你帮助我的信息").append(planDTO.getTarget()).append("我想要达到的程度是").append(planDTO.getLevel())
+                .append("我预定的学习时间是").append(planDTO.getTime())
+                .append("不要有总结之类的话,以亲爱的同学为开头," +
+                        "直接给我一个计划即可,但是尽可能的详细一点,并以班主任和学生交谈的口吻进行温柔的回答");
         AIUtil aiUtil = new AIUtil(sparkClient);
         String aiAnswer = aiUtil.getAIAnswer(question.toString());
         //获取当前时间
@@ -224,10 +230,13 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
         if (studyPlanVOS == null) {
             studyPlanVOS = new ArrayList<>();
         }
+        studyPlanVo.setTitle("学习方案("+(studyPlanVOS.size()+1)+")");
+        studyPlanVo.setStatus(false);
         studyPlanVOS.add(studyPlanVo);
         redisTemplate.opsForValue().set("historyPlan" + currentId, studyPlanVOS);
-        studentMapper.addStudyPlan(currentId, aiAnswer, formattedDateTime);
-        return aiAnswer;
+        studentMapper.addStudyPlan(currentId,studyPlanVo);
+
+        return studyPlanVo;
     }
 
     /**
@@ -237,14 +246,15 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
     @Override
     public List<StudyPlanVO> getHistoryPlan() {
         Long currentId = BaseContext.getCurrentId();
+        log.info("学生用户 {} 获取历史的学习计划 {}", currentId,LocalDateTime.now());
         String key = "historyPlan" + currentId;
         //从redis中获取
-        List<StudyPlanVO> studyPlanVOS = (List<StudyPlanVO>) redisTemplate.opsForValue().get(key);
-        if (studyPlanVOS == null) {
-            studyPlanVOS = studentMapper.getHistoryPlan(currentId);
-            redisTemplate.opsForValue().set(key, studyPlanVOS);
+        List<StudyPlanVO> studyPlanVOs = (List<StudyPlanVO>) redisTemplate.opsForValue().get(key);
+        if (studyPlanVOs == null) {
+            studyPlanVOs = studentMapper.getHistoryPlan(currentId);
+            redisTemplate.opsForValue().set(key, studyPlanVOs);
         }
-        return studyPlanVOS;
+        return studyPlanVOs;
     }
 
 }

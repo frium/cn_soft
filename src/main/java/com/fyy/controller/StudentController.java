@@ -60,7 +60,7 @@ public class StudentController {
 
     @ApiOperation("定制学习计划")
     @PostMapping("/customizedPlan")
-    public R<?> customizedPlan(@Valid @RequestBody PlanDTO planDto) {
+    public R<StudyPlanVO> customizedPlan(@Valid @RequestBody PlanDTO planDto) {
         return R.success(studentService.customizedPlan(planDto));
     }
 
@@ -69,4 +69,5 @@ public class StudentController {
     public R<List<StudyPlanVO>> getHistoryPlan() {
         return R.success(studentService.getHistoryPlan());
     }
+
 }

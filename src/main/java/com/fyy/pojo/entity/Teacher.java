@@ -13,7 +13,7 @@ import java.io.Serializable;
 public class Teacher implements Serializable {
     private String sex;
     private String name;
-    private Long ID;
+    private Long id;
     private String password;
     private String phone;
     private String personalId;
