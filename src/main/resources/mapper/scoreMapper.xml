@@ -36,11 +36,20 @@
         order by create_time desc
         limit 5 ;
     </select>
-    <select id="getAllScores">
+    <select id="getAllScores" >
         select distinct title
         from score
         where title like concat('%', #{title}, '%')
         order by title
         limit #{offset}, #{pageSize};
+    </select>
+    <select id="getRank" resultType="java.lang.Integer">
+        SELECT @rank := @rank + 1 AS r
+        FROM (SELECT student_id, #{subject}
+              FROM score
+              WHERE title =  #{title}
+              ORDER BY #{subject} DESC) AS ranked,
+             (SELECT @rank := 0) AS init
+        where student_id=(select student_id from student where id =#{id})
     </select>
 </mapper>

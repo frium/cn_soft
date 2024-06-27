@@ -5,6 +5,7 @@ import com.fyy.pojo.dto.PageDTO;
 import com.fyy.pojo.dto.PersonalInfoDTO;
 import com.fyy.pojo.dto.PlanDTO;
 import com.fyy.pojo.vo.PersonalInfoVO;
+import com.fyy.pojo.vo.StudentScoreRankVO;
 import com.fyy.pojo.vo.StudentScoreVO;
 import com.fyy.pojo.vo.StudyPlanVO;
 import com.fyy.service.ScoreService;
@@ -70,4 +71,9 @@ public class StudentController {
         return R.success(studentService.getHistoryPlan());
     }
 
+    @ApiOperation("获取考试的排名")
+    @GetMapping("/getRank")
+    public R<StudentScoreRankVO> getRank(String title) {
+        return R.success(scoreService.getRank(title));
+    }
 }

@@ -16,12 +16,11 @@ import java.util.List;
 @Data
 @ApiModel("定制学习计划")
 public class PlanDTO {
-    @NotEmpty(message = "选择定制的科目不能为空")
+    @NotEmpty(message = "输入定制的科目不能为空")
     @ApiModelProperty(value = "需要定制的科目", required = true)
-    List<String> subjects;
+    String subjects;
 
-    @Length(message = "输入的目标不能小于十五个字", min = 15)
-    @ApiModelProperty(value = "目标(AI辅助)", required = true)
+    @ApiModelProperty(value = "目标帮助AI辅助", required = true)
     String target;
 
     @NotEmpty(message = "选择的学习时间不能为空")

@@ -82,6 +82,7 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher> impl
         if (t != null) {
             Map<String, Object> claims = new HashMap<>();
             claims.put("teacherId", t.getId());
+            response.setHeader("Access-Control-Expose-Headers", "Authorization");
             response.setHeader("Authorization", JwtUtil.createToken(key, ttl, claims));
             httpSession.setAttribute("userRole", "teacher");
         } else {

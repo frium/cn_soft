@@ -75,6 +75,7 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
         if (s != null) {
             Map<String, Object> claims = new HashMap<>();
             claims.put("studentId", s.getId());
+            response.setHeader("Access-Control-Expose-Headers", "Authorization");
             response.setHeader("Authorization", JwtUtil.createToken(key, ttl, claims));//设置token到请求头中
             httpSession.setAttribute("userRole", "student");
         } else {
@@ -206,7 +207,7 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
         Long currentId = BaseContext.getCurrentId();
         log.info("学生用户 {} 定制学习计划 {}", currentId,LocalDateTime.now());
         String key = "historyPlan" + currentId;
-        List<Score> scores = scoreMapper.getStudentScoresLimit5(currentId, planDTO.getSubjects());//获取需要定制计划的科目的成绩
+        List<Score> scores = scoreMapper.getStudentScoresLimit5(currentId);//获取需要定制计划的科目的成绩
         StringBuilder question = new StringBuilder("你是我的班主任,接下来我需要你帮助我去定制一个学习计划,你只需要考虑" + planDTO.getSubjects() +
                 "这科目,其他的不需要你考虑,这是我最近几次的这几科的考试成绩");
         for (Score score : scores) {

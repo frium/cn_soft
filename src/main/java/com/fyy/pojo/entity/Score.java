@@ -15,7 +15,7 @@ import java.util.List;
 @Data
 public class Score implements Serializable {
     private Long id;
-    private Long studentId;
+    private String studentId;
     private Float chinese;
     private Float math;
     private Float english;
@@ -25,6 +25,7 @@ public class Score implements Serializable {
     private Float politics;
     private Float geography;
     private Float biology;
+    private Float totalScore;
     private String createTime;
     private String updateTime;
     private String title;
@@ -32,7 +33,7 @@ public class Score implements Serializable {
     public static Score fromRowData(List<String> rowData, String title) {
         Score studentScore = new Score();
         studentScore.setTitle(title);
-        studentScore.setStudentId((long)Double.parseDouble(rowData.get(1)));
+        studentScore.setStudentId(String.valueOf((long)Double.parseDouble(rowData.get(1))));
         studentScore.setChinese(Float.parseFloat(rowData.get(2)));
         studentScore.setMath(Float.parseFloat(rowData.get(3)));
         studentScore.setEnglish(Float.parseFloat(rowData.get(4)));

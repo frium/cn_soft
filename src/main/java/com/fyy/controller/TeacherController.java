@@ -39,6 +39,11 @@ public class TeacherController {
         return R.success(scoreService.getAllScoresTitle(pageDto));
     }
 
+    @ApiOperation("删除考试成绩")
+    @PostMapping("/deleteScore")
+    public R<?> deleteScore(){
+        return null;
+    }
     @ApiOperation("通过学号添加学生成绩")
     @PostMapping("/addStudentScores")
     public R<String> addStudentScores(@Valid  @RequestBody ScoreDTO score) {
@@ -59,5 +64,17 @@ public class TeacherController {
     public R<String>loadScores(String title){
         teacherService.loadScores(title);
         return R.success();
+    }
+
+    @ApiOperation("查看自己的所有学生")
+    @GetMapping("/getAllStudents")
+    public R<?> getAllStudents(){
+        return null;
+    }
+
+    @ApiOperation("删除学生")
+    @DeleteMapping("/deleteStudent")
+    public R<?>deleteStudent(){
+        return null;
     }
 }

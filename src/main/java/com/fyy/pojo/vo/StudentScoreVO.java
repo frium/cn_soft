@@ -36,6 +36,7 @@ public class StudentScoreVO {
     private Float geography;
     @ApiModelProperty(value = "生物")
     private Float biology;
-
+    @ApiModelProperty(value = "总分")
+    private Float totalScore;
 
 }
